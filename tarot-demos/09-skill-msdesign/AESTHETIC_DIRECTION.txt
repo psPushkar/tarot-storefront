@@ -1,0 +1,4 @@
+﻿Purpose: Persuade visually literate independent practitioners that a custom booking storefront can feel as exacting and personal as their practice, while still letting a client choose a reading and book without friction.
+Tone: Nocturne editorial atelier — ink, brass, oxidised green, vellum, precise calendar-ledgers; serious, intimate, and unsentimental rather than costume occult.
+Constraints: Plain HTML/CSS/JS; no images; CSS-authored grain, meshes and geometry; responsive at 1440/768/375; WCAG 2.1 AA target; CSS-only motion preference with reduced-motion support; exact fixed content only.
+Differentiation: A diagonal observatory-ledger composition using coded card-like slabs, orbit rules, and booking-interface craft to make tarot feel like disciplined attention, not Halloween mysticism or startup SaaS.

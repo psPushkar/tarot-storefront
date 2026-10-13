@@ -1,0 +1,171 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Ornament from '../components/Ornament.astro';
+import Photo from '../components/Photo.astro';
+import { photos } from '../lib/photos';
+import { getBrand } from '../lib/brand';
+import { uploadUrl } from '../lib/config';
+import { initials } from '../lib/format';
+import { personSchema, breadcrumbSchema } from '../lib/schema';
+import { aboutSections } from '../lib/content';
+import type { Block } from '../lib/content';
+
+const { profile, ok, demo } = await getBrand();
+const photoUrl = uploadUrl(profile.photo_key);
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'About', path: '/about' },
+];
+
+const languageNames = (profile.languages ?? []).map((code) => {
+  try {
+    return new Intl.DisplayNames(['en'], { type: 'language' }).of(code) ?? code;
+  } catch {
+    return code;
+  }
+});
+
+const hasBio = Boolean(profile.bio?.trim());
+const showBio = hasBio && ok && !demo;
+const bioParas = showBio ? profile.bio.split(/\n\s*\n/).filter(Boolean) : [];
+---
+
+<Base
+  title="About"
+  description="Aurelia Sable is a Lisbon-based tarot reader with nineteen years of practice. Learn about her approach to the cards, who she reads for, and how she works."
+  schemas={[personSchema(profile, photoUrl), breadcrumbSchema(trail)]}
+>
+  <PageHeader variant="editorial" eyebrow="The practitioner" heading="Aurelia Sable" trail={trail} />
+
+  <div class="about-opening shell" data-reveal>
+    <Photo
+      photo={photos.candleDark}
+      ratio="wide"
+      width={1200}
+      sizes="(min-width: 1280px) 1160px, 100vw"
+      eager={true}
+    >
+      <figcaption>Lisbon · nineteen years in practice</figcaption>
+    </Photo>
+  </div>
+
+  <section class="section shell" data-reveal>
+    <div class="split-editorial">
+      <aside class="split-aside about-aside" aria-label="Practitioner details">
+        <div class="about-medallion-wrap">
+          <Ornament motif="vesica" class="about-vesica" />
+          {photoUrl ? (
+            <img
+              src={photoUrl}
+              alt={profile.display_name || profile.site_name}
+              class="about-avatar"
+              width="120"
+              height="120"
+              loading="lazy"
+            />
+          ) : (
+            <div class="about-avatar about-avatar--fallback">
+              {initials(profile.display_name || profile.site_name)}
+            </div>
+          )}
+        </div>
+
+        <dl class="about-facts">
+          {languageNames.length > 0 && (
+            <>
+              <dt>Languages</dt>
+              <dd>{languageNames.join(', ')}</dd>
+            </>
+          )}
+          {(profile.specialties ?? []).length > 0 && (
+            <>
+              <dt>Specialties</dt>
+              <dd>{(profile.specialties ?? []).join(', ')}</dd>
+            </>
+          )}
+          {profile.timezone && (
+            <>
+              <dt>Timezone</dt>
+              <dd>{profile.timezone.replace(/_/g, ' ')}</dd>
+            </>
+          )}
+        </dl>
+
+        <a href="/services" class="btn btn-ghost">View readings</a>
+      </aside>
+
+      <div class="prose" data-reveal>
+        {showBio && bioParas.map((para) => <p>{para}</p>)}
+        {aboutSections.map((block: Block) => {
+          if (block.kind === 'h2') return <h2>{block.text}</h2>;
+          if (block.kind === 'quote') return <blockquote class="pull-quote">{block.text}</blockquote>;
+          if (block.kind === 'list') return <ul>{block.items.map((item) => <li>{item}</li>)}</ul>;
+          return <p>{block.text}</p>;
+        })}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .about-opening {
+    max-inline-size: 1160px;
+    margin-block-end: clamp(8px, 2vw, 24px);
+  }
+.about-aside {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    text-align: center;
+  }
+  .about-medallion-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .about-vesica {
+    position: absolute;
+    inset: -40px;
+    width: 200px;
+    height: 200px;
+    color: var(--color-gold-dim);
+    opacity: 0.12;
+    pointer-events: none;
+  }
+  .about-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 2px solid var(--color-gold);
+    object-fit: cover;
+    position: relative;
+  }
+  .about-avatar--fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-raised);
+    font-family: var(--font-display);
+    font-size: var(--text-display-md);
+    color: var(--color-gold);
+  }
+  .about-facts {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 16px;
+    text-align: start;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+  }
+  .about-facts dt {
+    color: var(--color-ink-muted);
+    font-weight: 500;
+  }
+  .about-facts dd {
+    margin: 0;
+  }
+</style>

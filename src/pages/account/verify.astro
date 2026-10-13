@@ -1,0 +1,13 @@
+---
+import Base from '../../layouts/Base.astro';
+import AuthPanel from '../../components/islands/AuthPanel.tsx';
+---
+
+<Base title="Verify your email" description="Confirm your email address." noindex={true}>
+  <section class="auth-page">
+    <div class="auth-page__column shell">
+      <h1 class="auth-page__sr-title">Verify your email</h1>
+      <AuthPanel mode="verify" client:only="preact" />
+    </div>
+  </section>
+</Base>

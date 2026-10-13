@@ -1,0 +1,462 @@
+---
+import BookingFlow from '../../components/islands/BookingFlow';
+import Focus from '../../layouts/Focus.astro';
+import { getService } from '../../lib/api';
+import { getBrand } from '../../lib/brand';
+import { getCatalogue } from '../../lib/catalogue';
+import { config } from '../../lib/config';
+import type { ServiceDetail } from '../../lib/types';
+
+export async function getStaticPaths() {
+  const { services } = await getCatalogue();
+
+  const detailed = await Promise.all(
+    services.map(async (service) => {
+      const result = await getService(service.slug);
+      return {
+        params: { slug: service.slug },
+        props: { service: (result.ok ? result.data : service) as ServiceDetail },
+      };
+    }),
+  );
+
+  return detailed;
+}
+
+interface Props {
+  service: ServiceDetail;
+}
+
+const { service } = Astro.props;
+const { profile, onVacation } = await getBrand();
+---
+
+<Focus
+  title={`Book ${service.title}`}
+  description={`Choose a time for ${service.title} and complete your booking.`}
+  backHref={`/services/${service.slug}`}
+  backLabel={`Back to ${service.title}`}
+>
+  <div class="shell">
+    <h1 class="flow__page-title">Book {service.title}</h1>
+
+    <BookingFlow
+      client:only="preact"
+      service={service}
+      practitionerTimezone={profile.timezone}
+      minNoticeHours={profile.booking?.min_notice_hours ?? 2}
+      maxHorizonDays={profile.booking?.max_horizon_days ?? 60}
+      siteUrl={config.siteUrl}
+      onVacation={onVacation}
+      vacationMessage={profile.vacation?.message}
+    />
+
+    <noscript>
+      <div class="notice notice-warning" style="margin-top:32px">
+        <div>
+          <strong>Booking needs JavaScript.</strong>
+          <p style="margin-top:6px">
+            Choosing a time requires live availability, which cannot be shown without it. If you
+            would rather not enable JavaScript, write to me at the
+            <a href="/contact" class="link">contact page</a> and we will arrange a time between us.
+          </p>
+        </div>
+      </div>
+    </noscript>
+  </div>
+</Focus>
+
+<style is:global>
+  /* ═══════════════════════════════════════════════════════════════════
+     Booking flow. These styles are global because the flow is a Preact
+     island, and Astro's scoped styles do not reach into one.
+     ═══════════════════════════════════════════════════════════════════ */
+
+  .flow {
+    max-inline-size: 1080px;
+    margin-inline: auto;
+  }
+
+  /* The flow's own step headings are h2s, so the page keeps a single h1 for
+     assistive technology without competing with the visible hierarchy. */
+  .flow__page-title {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ── Stepper ─────────────────────────────────────────────────────── */
+  .stepper {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0;
+    max-inline-size: 480px;
+    margin: 0 auto clamp(36px, 5vw, 56px);
+    padding: 0;
+    list-style: none;
+  }
+  .stepper__item {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    gap: 10px;
+  }
+  .stepper__line {
+    position: absolute;
+    inset-block-start: 15px;
+    inset-inline-end: 50%;
+    inline-size: 100%;
+    block-size: 1px;
+    background: var(--color-line);
+    transition: background-color 400ms var(--ease-calm);
+  }
+  .stepper__item[data-state='complete'] .stepper__line,
+  .stepper__item[data-state='current'] .stepper__line {
+    background: var(--color-gold);
+  }
+  .stepper__circle {
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: 32px;
+    block-size: 32px;
+    border-radius: 999px;
+    background: var(--color-raised);
+    border: 1px solid var(--color-line);
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-muted);
+    transition:
+      border-color 300ms var(--ease-calm),
+      background-color 300ms var(--ease-calm),
+      color 300ms var(--ease-calm);
+  }
+  .stepper__item[data-state='current'] .stepper__circle {
+    border: 2px solid var(--color-gold);
+    color: var(--color-gold);
+    font-weight: 600;
+  }
+  .stepper__item[data-state='complete'] .stepper__circle {
+    background: var(--color-gold);
+    border-color: var(--color-gold);
+    color: var(--color-ink-inverse);
+  }
+  .stepper__label {
+    font-size: var(--text-fine);
+    color: var(--color-ink-muted);
+  }
+  .stepper__item[data-state='current'] .stepper__label {
+    color: var(--color-ink);
+  }
+  .stepper__item[data-state='complete'] .stepper__label {
+    color: var(--color-ink-soft);
+  }
+  .stepper__sr {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ── Body ────────────────────────────────────────────────────────── */
+  .flow__body {
+    display: grid;
+    gap: clamp(28px, 4vw, 48px);
+  }
+  @media (min-width: 1100px) {
+    .flow__body {
+      grid-template-columns: minmax(0, 1fr) 320px;
+      align-items: start;
+    }
+  }
+
+  .flow__main {
+    max-inline-size: 620px;
+    inline-size: 100%;
+  }
+  .flow__main:focus {
+    outline: none;
+  }
+
+  .flow__heading {
+    font-family: var(--font-display);
+    font-size: var(--text-display-md);
+    color: var(--color-ink);
+  }
+  .flow__sub {
+    margin-block-start: 12px;
+    max-inline-size: 52ch;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-muted);
+  }
+  .flow__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-block-start: clamp(28px, 4vw, 40px);
+  }
+  .flow__fine {
+    margin-block-start: 20px;
+    font-size: var(--text-fine);
+    color: var(--color-ink-muted);
+  }
+  .flow__summary {
+    margin-block-start: 24px;
+  }
+  .flow__summary p {
+    margin-block-start: 4px;
+    color: inherit;
+    opacity: 0.85;
+  }
+  .flow__inline-error {
+    padding-block: 28px;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+    text-align: center;
+  }
+
+  /* ── Calendar ────────────────────────────────────────────────────── */
+  .cal {
+    margin-block-start: clamp(28px, 4vw, 40px);
+    padding: clamp(16px, 2.5vw, 24px);
+    background: var(--color-raised);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+  }
+  .cal__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-block-end: 18px;
+  }
+  .cal__month {
+    font-family: var(--font-display);
+    font-size: var(--text-display-sm);
+    font-weight: 400;
+    color: var(--color-ink);
+  }
+  .cal__nav {
+    display: grid;
+    place-items: center;
+    inline-size: 36px;
+    block-size: 36px;
+    background: transparent;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    color: var(--color-ink-soft);
+    cursor: pointer;
+    transition: all 150ms var(--ease-subtle);
+  }
+  .cal__nav:hover:not(:disabled) {
+    border-color: var(--color-line-gold);
+    color: var(--color-gold);
+  }
+  .cal__nav:disabled {
+    color: var(--color-ink-faint);
+    cursor: not-allowed;
+  }
+  .cal__weekdays,
+  .cal__grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 2px;
+    justify-items: center;
+  }
+  .cal__weekdays {
+    margin-block-end: 8px;
+  }
+  .cal__weekdays span {
+    font-family: var(--font-eyebrow);
+    font-size: var(--text-fine);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--color-ink-muted);
+  }
+  .cal__skeleton {
+    inline-size: 36px;
+    block-size: 36px;
+    border-radius: 999px;
+  }
+
+  /* ── Slots ───────────────────────────────────────────────────────── */
+  .slots {
+    margin-block-start: 28px;
+  }
+  .slots__heading {
+    font-family: var(--font-display);
+    font-size: var(--text-display-sm);
+    font-weight: 400;
+    color: var(--color-ink);
+  }
+  .slots__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-block-start: 16px;
+  }
+  .slots__skeleton {
+    inline-size: 92px;
+    block-size: 40px;
+    border-radius: 999px;
+  }
+  .slots__empty {
+    margin-block-start: 16px;
+    padding: 24px;
+    text-align: center;
+    background: var(--color-recessed);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+  }
+
+  /* ── Form ────────────────────────────────────────────────────────── */
+  .form {
+    display: grid;
+    gap: 20px;
+    margin-block-start: clamp(28px, 4vw, 36px);
+  }
+  .field__optional {
+    color: var(--color-ink-muted);
+    font-weight: 400;
+  }
+
+  /* ── Extras and coupon ───────────────────────────────────────────── */
+  .extras {
+    margin-block-start: clamp(28px, 4vw, 36px);
+    padding: 0;
+    border: none;
+  }
+  .extras legend {
+    margin-block-end: 12px;
+    padding: 0;
+  }
+  .extras__row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding-block: 14px;
+    border-block-end: 1px solid var(--color-line);
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+    cursor: pointer;
+  }
+  .extras__row:first-of-type {
+    border-block-start: 1px solid var(--color-line);
+  }
+  .extras__row input {
+    inline-size: 18px;
+    block-size: 18px;
+    accent-color: var(--color-gold);
+    cursor: pointer;
+  }
+  .extras__price {
+    color: var(--color-gold);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .coupon {
+    margin-block-start: 28px;
+  }
+  .coupon__row {
+    display: flex;
+    gap: 8px;
+    margin-block-start: 6px;
+  }
+  .coupon__row .input {
+    flex: 1;
+  }
+  .coupon__row .btn {
+    flex: none;
+    min-inline-size: 0;
+  }
+
+  .breakdown {
+    margin-block-start: 28px;
+  }
+  .breakdown__skeleton {
+    display: block;
+    block-size: 20px;
+    margin-block: 14px;
+  }
+
+  /* ── Running summary ─────────────────────────────────────────────── */
+  .summary {
+    padding: var(--card-padding);
+    background: var(--color-raised);
+    border: 1px solid var(--color-line);
+    border-block-start: 2px solid var(--color-line-gold);
+    border-radius: var(--radius-lg);
+  }
+  @media (min-width: 1100px) {
+    .summary {
+      position: sticky;
+      inset-block-start: 96px;
+    }
+  }
+  .summary__title {
+    margin-block-start: 10px;
+    font-family: var(--font-display);
+    font-size: var(--text-display-sm);
+    color: var(--color-ink);
+  }
+  .summary__facts {
+    margin-block: 20px 0;
+  }
+  .summary__facts > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+    padding-block: 11px;
+    border-block-end: 1px solid var(--color-line);
+    font-size: var(--text-copy-sm);
+  }
+  .summary__facts dt {
+    color: var(--color-ink-muted);
+  }
+  .summary__facts dd {
+    margin: 0;
+    text-align: end;
+    color: var(--color-ink);
+  }
+  .summary__fine {
+    margin-block-start: 16px;
+    font-size: var(--text-fine);
+    color: var(--color-ink-muted);
+  }
+
+  /* ── Vacation short-circuit ──────────────────────────────────────── */
+  .flow-state {
+    max-inline-size: 460px;
+    margin-inline: auto;
+    padding-block: clamp(48px, 8vw, 96px);
+    text-align: center;
+  }
+  .flow-state h2 {
+    font-family: var(--font-display);
+    font-size: var(--text-display-md);
+    color: var(--color-ink);
+  }
+  .flow-state p {
+    margin-block-start: 16px;
+    color: var(--color-ink-soft);
+  }
+  .flow-state__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-block-start: 32px;
+  }
+</style>

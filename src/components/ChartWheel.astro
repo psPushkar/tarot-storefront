@@ -1,0 +1,163 @@
+---
+/**
+ * ChartWheel — a geometric astrological chart.
+ *
+ * Drawn as concentric rules, twelve house divisions, a degree ring and a web of
+ * aspect lines. It reads unmistakably as a natal chart without pretending to be
+ * anyone's actual chart, which keeps it honest as decoration.
+ *
+ * `seed` varies the aspect web so two wheels on the same site are not twins.
+ */
+
+interface Props {
+  size?: number;
+  class?: string;
+  seed?: number;
+  label?: string;
+}
+
+const { size = 320, class: className = '', seed = 7, label } = Astro.props;
+
+const R = 200;
+const uid = `cw${Math.random().toString(36).slice(2, 9)}`;
+
+const a11y = label
+  ? ({ role: 'img' as const, 'aria-label': label } as const)
+  : ({ 'aria-hidden': 'true' as const } as const);
+
+const point = (radius: number, degrees: number) => {
+  const radians = ((degrees - 90) * Math.PI) / 180;
+  return [R + Math.cos(radians) * radius, R + Math.sin(radians) * radius] as const;
+};
+
+// Twelve house cusps.
+const houses = Array.from({ length: 12 }, (_, i) => i * 30);
+
+// Degree ticks: taller every five.
+const ticks = Array.from({ length: 72 }, (_, i) => i * 5);
+
+/** Deterministic pseudo-random so the artwork is stable across builds. */
+function rng(index: number): number {
+  const x = Math.sin(seed * 977 + index * 131.7) * 10_000;
+  return x - Math.floor(x);
+}
+
+// Planet positions, and the aspect lines drawn between them.
+const planets = Array.from({ length: 7 }, (_, i) => ({
+  angle: rng(i) * 360,
+  radius: 118 + rng(i + 40) * 26,
+  size: 2.2 + rng(i + 80) * 2.4,
+}));
+
+const aspects: [number, number][] = [
+  [0, 3],
+  [1, 4],
+  [2, 5],
+  [0, 5],
+  [3, 6],
+  [1, 6],
+];
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 400 400"
+  width={size}
+  height={size}
+  class:list={['chart-wheel', className]}
+  {...a11y}
+>
+  <defs>
+    <radialGradient id={`${uid}-core`} cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#C9A55C" stop-opacity="0.1" />
+      <stop offset="70%" stop-color="#C9A55C" stop-opacity="0.02" />
+      <stop offset="100%" stop-color="#C9A55C" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <circle cx={R} cy={R} r="184" fill={`url(#${uid}-core)`} />
+
+  <g stroke="#C9A55C" fill="none">
+    <!-- Rings -->
+    <circle cx={R} cy={R} r="192" stroke-width="0.6" opacity="0.35" />
+    <circle cx={R} cy={R} r="176" stroke-width="0.9" opacity="0.6" />
+    <circle cx={R} cy={R} r="150" stroke-width="0.5" opacity="0.3" />
+    <circle cx={R} cy={R} r="96" stroke-width="0.5" opacity="0.3" />
+    <circle cx={R} cy={R} r="34" stroke-width="0.7" opacity="0.45" />
+
+    <!-- Degree ticks -->
+    <g stroke-width="0.5" opacity="0.4">
+      {
+        ticks.map((degree, index) => {
+          const long = index % 6 === 0;
+          const [x1, y1] = point(176, degree);
+          const [x2, y2] = point(long ? 162 : 169, degree);
+          return <path d={`M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`} />;
+        })
+      }
+    </g>
+
+    <!-- House cusps -->
+    <g stroke-width="0.7" opacity="0.45">
+      {
+        houses.map((degree) => {
+          const [x1, y1] = point(150, degree);
+          const [x2, y2] = point(34, degree);
+          return <path d={`M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`} />;
+        })
+      }
+    </g>
+
+    <!-- Angular axes, drawn heavier: the chart's spine -->
+    <g stroke-width="1.1" opacity="0.75">
+      <path d={`M${point(192, 0).map((n) => n.toFixed(1)).join(' ')}L${point(192, 180).map((n) => n.toFixed(1)).join(' ')}`} />
+      <path d={`M${point(192, 90).map((n) => n.toFixed(1)).join(' ')}L${point(192, 270).map((n) => n.toFixed(1)).join(' ')}`} />
+    </g>
+
+    <!-- Aspect web -->
+    <g stroke-width="0.55" opacity="0.5" stroke-dasharray="3 4">
+      {
+        aspects.map(([a, b]) => {
+          const first = planets[a];
+          const second = planets[b];
+          if (!first || !second) return null;
+          const [x1, y1] = point(first.radius, first.angle);
+          const [x2, y2] = point(second.radius, second.angle);
+          return <path d={`M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`} />;
+        })
+      }
+    </g>
+  </g>
+
+  <!-- Planets -->
+  <g fill="#C9A55C">
+    {
+      planets.map((planet) => {
+        const [cx, cy] = point(planet.radius, planet.angle);
+        return (
+          <>
+            <circle cx={cx.toFixed(1)} cy={cy.toFixed(1)} r={(planet.size + 3.5).toFixed(1)} fill="#0C0B0F" />
+            <circle cx={cx.toFixed(1)} cy={cy.toFixed(1)} r={planet.size.toFixed(1)} opacity="0.9" />
+          </>
+        );
+      })
+    }
+  </g>
+
+  <!-- Centre mark -->
+  <g transform={`translate(${R} ${R})`}>
+    <path
+      d="M0 -17L1 -6.5L6 -14.3L2 -5L10.6 -8.5L2.9 -2.9L17 0L2.9 2.9L10.6 8.5L2 5L6 14.3L1 6.5L0 17L-1 6.5L-6 14.3L-2 5L-10.6 8.5L-2.9 2.9L-17 0L-2.9 -2.9L-10.6 -8.5L-2 -5L-6 -14.3L-1 -6.5L0 -17Z"
+      fill="#C9A55C"
+      opacity="0.85"
+    />
+  </g>
+</svg>
+
+<style>
+  .chart-wheel {
+    display: block;
+    max-inline-size: 100%;
+    block-size: auto;
+  }
+</style>

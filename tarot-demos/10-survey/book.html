@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Book · Aurelia Sable</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="book.html">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="paper-tooth grain" aria-hidden="true"></div>
+<div class="entry-seq preload" aria-hidden="true">Survey sheet registering</div>
+<div class="demo-badge">Demo — Design 10: Survey</div>
+<header class="site-head" data-scroll-nav><a class="site-mark" href="index.html">Aurelia Sable · Topographic Sheet</a><nav class="site-nav" aria-label="Primary"><a href="index.html">Sheet</a><a href="readings.html">Readings</a><a href="about.html">About</a><a href="book.html" aria-current="page">Book</a><a href="contact.html">Contact</a></nav></header>
+<main id="main">
+<section class="page-title"><h1><span class="sr-only">Locate a reading in time</span><span aria-hidden="true" class="split-headline"><span class="word">Locate</span><span class="word">a</span><span class="word">reading</span><span class="word">in</span><span class="word">time</span></span></h1><p>A booking is a point on the sheet: choose the reading, then choose a grid reference where day and hour cross.</p></section>
+<section class="booking-steps" aria-labelledby="booking-steps-title"><h2 id="booking-steps-title">Booking sequence</h2><ol><li><strong>Choose a reading</strong><span>Five formats, from a fifteen-minute voice note to a ninety-minute session.</span></li><li><strong>Pick a time</strong><span>Live availability in your own time zone. No back-and-forth by message.</span></li><li><strong>Pay securely</strong><span>Card or UPI. You are charged once, at the time of booking.</span></li><li><strong>Receive the reading</strong><span>A calendar invite for live sessions; an email for written and audio ones.</span></li></ol></section>
+<form class="booking-form" aria-labelledby="booking-form-title" action="#" method="post">
+  <h2 id="booking-form-title">Grid reference request</h2>
+  <fieldset><legend>Choose a reading</legend><div class="service-picker"><button type="button" class="service-choice" data-service="threshold" aria-pressed="false"><span>The Threshold Reading</span><small>45 minutes · $29 / ₹2,400</small></button><button type="button" class="service-choice" data-service="full-life" aria-pressed="true"><span>The Full Life Reading</span><small>90 minutes · $58 / ₹4,800</small></button><button type="button" class="service-choice" data-service="year-ahead" aria-pressed="false"><span>The Year Ahead</span><small>75 minutes · $47 / ₹3,900</small></button><button type="button" class="service-choice" data-service="written" aria-pressed="false"><span>The Written Reading</span><small>Delivered in 3 days · $22 / ₹1,800</small></button><button type="button" class="service-choice" data-service="voice-note" aria-pressed="false"><span>The Voice Note</span><small>Delivered in 48 hours · $11 / ₹900</small></button></div></fieldset>
+  <fieldset><legend>Pick a time</legend><p class="field-help">Unavailable slots are drawn as hachures. Selected reference: <output id="grid-output">C3 · Wed Sep 22 · 14:30</output></p><div class="slot-grid" role="group" aria-label="Select date and time by grid reference"><div class="slot-col"><h3>MON<span>Sep 20</span></h3><button type="button" class="slot" data-grid="A1" aria-pressed="false"><span>A1</span><time>09:30</time></button><button type="button" class="slot hachured" data-grid="A2" aria-pressed="false" disabled aria-disabled="true"><span>A2</span><time>11:00</time></button><button type="button" class="slot" data-grid="A3" aria-pressed="false"><span>A3</span><time>14:30</time></button><button type="button" class="slot" data-grid="A4" aria-pressed="false"><span>A4</span><time>17:00</time></button></div><div class="slot-col"><h3>TUE<span>Sep 21</span></h3><button type="button" class="slot" data-grid="B1" aria-pressed="false"><span>B1</span><time>09:30</time></button><button type="button" class="slot" data-grid="B2" aria-pressed="false"><span>B2</span><time>11:00</time></button><button type="button" class="slot" data-grid="B3" aria-pressed="false"><span>B3</span><time>14:30</time></button><button type="button" class="slot hachured" data-grid="B4" aria-pressed="false" disabled aria-disabled="true"><span>B4</span><time>17:00</time></button></div><div class="slot-col"><h3>WED<span>Sep 22</span></h3><button type="button" class="slot" data-grid="C1" aria-pressed="false"><span>C1</span><time>09:30</time></button><button type="button" class="slot" data-grid="C2" aria-pressed="false"><span>C2</span><time>11:00</time></button><button type="button" class="slot" data-grid="C3" aria-pressed="true"><span>C3</span><time>14:30</time></button><button type="button" class="slot" data-grid="C4" aria-pressed="false"><span>C4</span><time>17:00</time></button></div><div class="slot-col"><h3>THU<span>Sep 23</span></h3><button type="button" class="slot hachured" data-grid="D1" aria-pressed="false" disabled aria-disabled="true"><span>D1</span><time>09:30</time></button><button type="button" class="slot" data-grid="D2" aria-pressed="false"><span>D2</span><time>11:00</time></button><button type="button" class="slot" data-grid="D3" aria-pressed="false"><span>D3</span><time>14:30</time></button><button type="button" class="slot" data-grid="D4" aria-pressed="false"><span>D4</span><time>17:00</time></button></div><div class="slot-col"><h3>FRI<span>Sep 24</span></h3><button type="button" class="slot" data-grid="E1" aria-pressed="false"><span>E1</span><time>09:30</time></button><button type="button" class="slot" data-grid="E2" aria-pressed="false"><span>E2</span><time>11:00</time></button><button type="button" class="slot hachured" data-grid="E3" aria-pressed="false" disabled aria-disabled="true"><span>E3</span><time>14:30</time></button><button type="button" class="slot" data-grid="E4" aria-pressed="false"><span>E4</span><time>17:00</time></button></div></div></fieldset>
+  <div class="form-rules">
+    <label>Name<input required name="name" autocomplete="name" placeholder="Your name"></label>
+    <label>Email<input required type="email" name="email" autocomplete="email" placeholder="you@example.com"></label>
+    <label>Question<textarea required name="question" rows="5" placeholder="What are you circling?"></textarea></label>
+    <label>Birth details<input name="birth" placeholder="Date, time if known, place"></label>
+  </div>
+  <p class="field-help">This demo does not submit. A real booking charges once by card or UPI.</p>
+  <button class="located-action magnetic" type="button"><span class="pin" aria-hidden="true"></span>Hold grid reference</button>
+</form>
+</main>
+<footer class="sheet-foot">
+  <div><strong>Aurelia Sable</strong><br>Reads worldwide</div>
+  <div>Payment by card or UPI · Charged once at booking</div>
+  <div><a href="mailto:hello@aureliasable.example">hello@aureliasable.example</a><br>@aureliasable</div>
+</footer>
+<script src="script.js"></script>
+</body>
+</html>
+

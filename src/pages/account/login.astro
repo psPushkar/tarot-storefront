@@ -1,0 +1,90 @@
+---
+import Base from '../../layouts/Base.astro';
+import Ornament from '../../components/Ornament.astro';
+import AuthPanel from '../../components/islands/AuthPanel.tsx';
+---
+
+<Base title="Sign in" description="Sign in to your account." noindex={true}>
+  <section class="auth-page">
+    <div class="auth-page__vesica" aria-hidden="true">
+      <Ornament motif="vesica" size={320} />
+    </div>
+    <div class="auth-page__column shell">
+      <h1 class="auth-page__sr-title">Sign in</h1>
+      <AuthPanel mode="login" client:only="preact" />
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+  .auth-page {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding-block: clamp(120px, 14vh, 200px) clamp(64px, 8vh, 120px);
+    overflow: hidden;
+  }
+  .auth-page__vesica {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.08;
+    pointer-events: none;
+  }
+  .auth-page__column {
+    position: relative;
+    max-inline-size: 420px;
+  }
+  .auth-page__sr-title {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+  .auth {
+    min-block-size: 200px;
+  }
+  .auth__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .auth__heading {
+    font-family: var(--font-display);
+    font-size: var(--text-display-md);
+    color: var(--color-ink);
+  }
+  .auth__body {
+    font-size: var(--text-copy);
+    color: var(--color-ink-soft);
+    max-inline-size: 46ch;
+  }
+  .auth__notice {
+    margin-block-start: 16px;
+  }
+  .auth__form {
+    margin-block-start: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .auth__links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-block-start: 20px;
+    font-size: var(--text-copy-sm);
+  }
+  .auth__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-block-start: 24px;
+  }
+</style>

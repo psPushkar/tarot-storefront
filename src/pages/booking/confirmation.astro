@@ -1,0 +1,125 @@
+---
+import Base from '../../layouts/Base.astro';
+import BookingConfirmation from '../../components/islands/BookingConfirmation.tsx';
+---
+
+<Base title="Booking confirmation" description="Your booking confirmation." noindex={true}>
+  <section class="shell section">
+    <BookingConfirmation client:only="preact" />
+
+    <noscript>
+      <div class="notice notice-warning" style="max-width:520px;margin-inline:auto">
+        <div>
+          <strong>Confirming a payment needs JavaScript.</strong>
+          <p style="margin-top:6px">
+            Your booking is unaffected — the confirmation email is the record that matters, and it
+            is on its way. You can also see every booking from
+            <a href="/account" class="link">your account</a>.
+          </p>
+        </div>
+      </div>
+    </noscript>
+  </section>
+</Base>
+
+<style is:global>
+  .confirm {
+    display: flex;
+    justify-content: center;
+    min-block-size: 400px;
+  }
+  .confirm__inner {
+    max-inline-size: 520px;
+    text-align: center;
+  }
+  .confirm__star {
+    color: var(--color-gold-dim);
+    margin: 0 auto 24px;
+  }
+  .confirm__star-wrap {
+    display: flex;
+    justify-content: center;
+    margin-block-end: 24px;
+  }
+  .confirm__star-wrap--animate .confirm__star {
+    animation: confirm-star-in 600ms var(--ease-smooth) both;
+  }
+  @keyframes confirm-star-in {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  .confirm__heading {
+    font-family: var(--font-display);
+    font-size: var(--text-display-md);
+    color: var(--color-ink);
+    margin-block-end: 12px;
+  }
+  .confirm__body {
+    font-size: var(--text-copy);
+    color: var(--color-ink-soft);
+    max-inline-size: 46ch;
+    margin-inline: auto;
+  }
+  .confirm__ref {
+    margin-block-start: 16px;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-muted);
+  }
+  .confirm__summary {
+    margin-block: 32px;
+    text-align: start;
+  }
+  .confirm__next {
+    text-align: start;
+    margin-block-end: 32px;
+  }
+  .confirm__next-heading {
+    font-family: var(--font-display);
+    font-size: var(--text-display-sm);
+    color: var(--color-ink);
+    margin-block-end: 16px;
+  }
+  .confirm__steps {
+    padding-inline-start: 1.25em;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: var(--text-copy);
+    color: var(--color-ink-soft);
+  }
+  .confirm__steps li::marker {
+    color: var(--color-gold-dim);
+    font-weight: 600;
+  }
+  .confirm__calendar {
+    margin-block-end: 32px;
+  }
+  .confirm__cal-heading {
+    font-family: var(--font-eyebrow);
+    font-size: var(--text-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-gold-dim);
+    margin-block-end: 12px;
+  }
+  .confirm__cal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  .confirm__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-block-start: 24px;
+  }
+</style>

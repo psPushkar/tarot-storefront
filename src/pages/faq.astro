@@ -1,0 +1,184 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Photo from '../components/Photo.astro';
+import { photos } from '../lib/photos';
+import Ornament from '../components/Ornament.astro';
+import { getBrand } from '../lib/brand';
+import { breadcrumbSchema, faqSchema } from '../lib/schema';
+import { faqIntro, faqs } from '../lib/content';
+
+const { profile } = await getBrand();
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'FAQ', path: '/faq' },
+];
+
+const groupOrder: string[] = [];
+for (const faq of faqs) {
+  if (!groupOrder.includes(faq.group)) groupOrder.push(faq.group);
+}
+
+const grouped = groupOrder.map((group) => ({
+  group,
+  items: faqs.filter((f) => f.group === group),
+}));
+
+// Practitioner policies group
+const policyEntries: { question: string; answer: string; group: string }[] = [];
+if (profile.policies?.cancellation) {
+  policyEntries.push({ question: 'Cancellation policy', answer: profile.policies.cancellation, group: 'Policies' });
+}
+if (profile.policies?.refund) {
+  policyEntries.push({ question: 'Refund policy', answer: profile.policies.refund, group: 'Policies' });
+}
+if (profile.policies?.disclaimer) {
+  policyEntries.push({ question: 'Disclaimer', answer: profile.policies.disclaimer, group: 'Policies' });
+}
+if (policyEntries.length > 0) {
+  grouped.push({ group: 'Policies', items: policyEntries });
+}
+
+const allFaqItems = [...faqs, ...policyEntries];
+---
+
+<Base
+  title="Frequently asked questions"
+  description="Honest answers about what happens during a tarot reading, scheduling, payment, cancellation, and what Aurelia will and will not do."
+  schemas={[faqSchema(allFaqItems), breadcrumbSchema(trail)]}
+>
+  <PageHeader variant="ceremonial" eyebrow={faqIntro.eyebrow} heading={faqIntro.heading} lede={faqIntro.body} trail={trail} />
+
+  <section class="section faq-section" aria-label="Questions and answers">
+    <Photo
+      photo={photos.darkMarble}
+      treatment="wash"
+      fill={true}
+      width={1400}
+      sizes="100vw"
+      decorative={true}
+      rounded={false}
+    />
+    <div class="shell faq-section__inner">
+    <div class="faq-layout">
+      <nav class="faq-index" aria-label="Question groups">
+        <ol>
+          {grouped.map((g) => (
+            <li><a href={`#${g.group.toLowerCase().replace(/\s+/g, '-')}`}>{g.group}</a></li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="faq-content" data-reveal-group>
+        {grouped.map((g) => (
+          <div class="faq-group" id={g.group.toLowerCase().replace(/\s+/g, '-')} data-reveal>
+            <h2 class="faq-group__title">{g.group}</h2>
+            {g.items.map((item) => (
+              <details class="faq-item">
+                <summary class="faq-item__summary">
+                  <span class="faq-item__question">{item.question}</span>
+                  <Ornament motif="chevron" size={16} class="chev" />
+                </summary>
+                <div class="faq-item__panel prose">{item.answer}</div>
+              </details>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .faq-section {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .faq-section__inner {
+    position: relative;
+    z-index: 1;
+  }
+  .faq-layout {
+    display: grid;
+    gap: clamp(32px, 5vw, 72px);
+  }
+  @media (min-width: 1024px) {
+    .faq-layout {
+      grid-template-columns: 200px 1fr;
+      align-items: start;
+    }
+  }
+  .faq-index {
+    position: sticky;
+    top: 108px;
+  }
+  .faq-index ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-muted);
+  }
+  .faq-index a:hover {
+    color: var(--color-gold);
+  }
+  @media (max-width: 1023px) {
+    .faq-index {
+      position: static;
+    }
+    .faq-index ol {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+    }
+  }
+  .faq-group {
+    margin-block-end: var(--section-y-sm);
+  }
+  .faq-group__title {
+    font-size: var(--text-display-sm);
+    color: var(--color-ink);
+    margin-block-end: 24px;
+  }
+  .faq-item {
+    border-block-end: 1px solid var(--color-line);
+  }
+  .faq-item__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 20px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq-item__summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq-item__summary::marker {
+    content: '';
+  }
+  .faq-item__question {
+    font-size: var(--text-lead);
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+  .faq-item__summary .chev {
+    flex-shrink: 0;
+    color: var(--color-ink-muted);
+    transition: transform 250ms var(--ease-smooth);
+  }
+  details[open] > .faq-item__summary .chev {
+    transform: rotate(180deg);
+  }
+  .faq-item__panel {
+    padding-block-end: 24px;
+    max-inline-size: 65ch;
+  }
+</style>

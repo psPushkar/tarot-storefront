@@ -1,0 +1,127 @@
+{
+  "_note": "Shared content for all five storefront demos. Identical everywhere, so the only variable a customer is judging is the DESIGN.",
+  "practitioner": {
+    "name": "Aurelia Sable",
+    "tagline": "Tarot for people at a crossroads",
+    "short_bio": "I read for people who already know something has to change and want a clearer look at it. Seventeen years, mostly by referral.",
+    "long_bio": "I started reading for friends in a flat in Bangalore with a borrowed deck and no idea what I was doing. Seventeen years later I read full time, mostly for people sent by someone I have already read for.\n\nI do not predict. A reading is a structured hour of attention on a question you have been circling alone, and the cards are the structure. Most people arrive knowing the answer and needing to hear it said out loud by someone with no stake in it.\n\nI will not read on someone else's behalf, I will not tell you whether to leave a marriage, and I will not pretend a spread can replace a doctor, a lawyer or a therapist. Everything else is fair game.",
+    "location": "Bangalore, India \u00b7 reads worldwide",
+    "email": "hello@aureliasable.example",
+    "instagram": "@aureliasable"
+  },
+  "services": [
+    {
+      "slug": "threshold",
+      "name": "The Threshold Reading",
+      "duration": "45 minutes",
+      "price": "\u20b92,400",
+      "price_usd": "$29",
+      "format": "Live video",
+      "blurb": "One question, held properly. For a decision you have been carrying too long.",
+      "detail": "A focused spread on a single crossroads. You bring one real question \u2014 not five \u2014 and we spend the whole session on it. Best for a decision with a deadline attached.",
+      "includes": ["A recording you keep", "Written summary within 24 hours", "One follow-up question by email"]
+    },
+    {
+      "slug": "full-life",
+      "name": "The Full Life Reading",
+      "duration": "90 minutes",
+      "price": "\u20b94,800",
+      "price_usd": "$58",
+      "format": "Live video",
+      "blurb": "The long look. Work, love, family, money \u2014 and how they are pulling against each other.",
+      "detail": "A wide spread across every area at once, which is the only way to see where one part of your life is quietly paying for another. People usually book this at the start of a year or the end of something.",
+      "includes": ["A recording you keep", "Written summary within 48 hours", "A second session at half price within 90 days"]
+    },
+    {
+      "slug": "year-ahead",
+      "name": "The Year Ahead",
+      "duration": "75 minutes",
+      "price": "\u20b93,900",
+      "price_usd": "$47",
+      "format": "Live video",
+      "blurb": "Twelve cards, twelve months, and the two that actually matter.",
+      "detail": "A month-by-month spread read as a shape rather than a forecast \u2014 where the pressure gathers, where it lifts, and which two months are worth clearing your calendar for.",
+      "includes": ["A recording you keep", "A one-page year map, illustrated", "Written summary within 48 hours"]
+    },
+    {
+      "slug": "written",
+      "name": "The Written Reading",
+      "duration": "Delivered in 3 days",
+      "price": "\u20b91,800",
+      "price_usd": "$22",
+      "format": "Written, by email",
+      "blurb": "No camera, no calendar. Send the question, receive the reading.",
+      "detail": "For people in awkward time zones, or who simply think better on paper. You send your question in writing; I read and send back roughly 1,200 words, plus photographs of the spread.",
+      "includes": ["~1,200 words", "Photographs of the spread", "One follow-up question by email"]
+    },
+    {
+      "slug": "voice-note",
+      "name": "The Voice Note",
+      "duration": "Delivered in 48 hours",
+      "price": "\u20b9900",
+      "price_usd": "$11",
+      "format": "Audio, by email",
+      "blurb": "Fifteen minutes, spoken. The smallest way in.",
+      "detail": "A short spoken reading on one narrow question. Most people book this first to see whether we get on before spending more.",
+      "includes": ["~15 minutes of audio", "Photograph of the spread"]
+    }
+  ],
+  "testimonials": [
+    {
+      "quote": "I booked expecting to be told what I wanted to hear. I was not, and it was the most useful hour of that month.",
+      "name": "R.",
+      "context": "The Threshold Reading"
+    },
+    {
+      "quote": "She said one sentence about my father that I have thought about every week since. I still do not know how.",
+      "name": "Meera K.",
+      "context": "The Full Life Reading"
+    },
+    {
+      "quote": "Straightforward, unhurried, and completely without the theatrics I was dreading.",
+      "name": "James T.",
+      "context": "The Year Ahead"
+    },
+    {
+      "quote": "The written one suited me better than a call ever would have. I have reread it three times.",
+      "name": "Anon.",
+      "context": "The Written Reading"
+    }
+  ],
+  "faq": [
+    {
+      "q": "Do I need to have a question ready?",
+      "a": "It helps, but no. Plenty of people arrive with a mess rather than a question, and shaping it is part of the session."
+    },
+    {
+      "q": "Do you predict the future?",
+      "a": "No. I read what is already in motion and where it is likely to lead if nothing changes. That is a different thing, and more useful."
+    },
+    {
+      "q": "What if I do not like what comes up?",
+      "a": "Then we sit with it. I will not soften a reading to keep the session comfortable, and I will not dramatise one to make it memorable."
+    },
+    {
+      "q": "Can you read about someone who is not present?",
+      "a": "Only as far as they affect you. I will not read another person's private life on your behalf."
+    },
+    {
+      "q": "Is this therapy?",
+      "a": "It is not, and it does not replace it. If something surfaces that needs a professional, I will say so plainly."
+    },
+    {
+      "q": "What happens after I book?",
+      "a": "You get a confirmation with a calendar invite and a link. Ten minutes before, you get a reminder. That is the whole process."
+    }
+  ],
+  "booking_steps": [
+    { "step": "Choose a reading", "detail": "Five formats, from a fifteen-minute voice note to a ninety-minute session." },
+    { "step": "Pick a time", "detail": "Live availability in your own time zone. No back-and-forth by message." },
+    { "step": "Pay securely", "detail": "Card or UPI. You are charged once, at the time of booking." },
+    { "step": "Receive the reading", "detail": "A calendar invite for live sessions; an email for written and audio ones." }
+  ],
+  "policies": {
+    "cancellation": "Free up to 24 hours before. Inside 24 hours, the session is held as credit for 90 days.",
+    "disclaimer": "Readings are offered for reflection and entertainment. They are not medical, legal, financial or psychological advice."
+  }
+}

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aurelia Sable — twelve storefront designs</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600&family=Prata&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0d11; --panel:#14161c; --panel-2:#1a1d25;
+    --line:#282c37; --text:#eceef4; --muted:#949cad; --accent:#d8b26a;
+    --sans:'Bricolage Grotesque',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --serif:'Prata',Georgia,'Times New Roman',serif;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:var(--sans);line-height:1.55;
+    background-image:
+      radial-gradient(1000px 520px at 8% -12%, rgba(216,178,106,.09), transparent 62%),
+      radial-gradient(760px 480px at 96% 4%, rgba(60,150,150,.07), transparent 62%);
+    background-repeat:no-repeat;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:99;opacity:.035;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .skip{position:absolute;left:-9999px}
+  .skip:focus{left:16px;top:16px;z-index:100;background:var(--accent);color:#000;padding:10px 16px}
+
+  .wrap{max-width:1400px;margin:0 auto;padding:0 clamp(20px,4vw,56px)}
+
+  header{padding:clamp(48px,7vw,84px) 0 10px;display:grid;gap:clamp(24px,4vw,60px);
+         grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);align-items:end}
+  @media (max-width:900px){header{grid-template-columns:1fr;align-items:start}}
+
+  h1{font-family:var(--serif);font-size:clamp(2.1rem,5vw,3.4rem);line-height:1.07;
+     margin:0 0 18px;letter-spacing:-.02em;max-width:17ch;font-weight:400}
+  h1 em{font-style:normal;color:var(--accent)}
+  .lede{font-size:clamp(1rem,1.4vw,1.08rem);color:var(--muted);max-width:58ch;margin:0}
+  .lede strong{color:var(--text);font-weight:600}
+
+  .note{padding:17px 19px;border:1px solid var(--line);background:var(--panel);
+        color:var(--muted);font-size:.9rem}
+  .note b{color:var(--text)}
+  .note + .note{margin-top:11px}
+
+  h2.group{font-family:var(--serif);font-weight:400;font-size:1.45rem;margin:54px 0 6px;
+           letter-spacing:-.01em}
+  .group-note{color:var(--muted);font-size:.9rem;margin:0 0 22px;max-width:72ch}
+
+  .grid{display:grid;gap:clamp(16px,2vw,24px);
+        grid-template-columns:repeat(auto-fit,minmax(300px,1fr));padding-bottom:10px}
+
+  .card{background:var(--panel);border:1px solid var(--line);overflow:hidden;
+        display:flex;flex-direction:column;
+        transition:border-color .18s ease, transform .18s ease;
+        border-radius:2px 16px 2px 16px}
+  .card:nth-child(even){border-radius:16px 2px 16px 2px}
+  .card:hover{border-color:var(--accent);transform:translateY(-3px)}
+  .card:focus-within{border-color:var(--accent)}
+  .card.fresh{border-color:rgba(216,178,106,.34)}
+
+  .frame{position:relative;aspect-ratio:16/10;background:var(--panel-2);
+         border-bottom:1px solid var(--line);overflow:hidden}
+  .swatch{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:18px}
+  .swatch .name{font-family:var(--serif);font-size:1.32rem;letter-spacing:-.01em}
+  .frame iframe{position:absolute;top:0;left:0;width:1400px;height:875px;
+                transform:scale(.29);transform-origin:top left;border:0;
+                background:transparent;pointer-events:none}
+
+  .body{padding:19px 21px 21px;display:flex;flex-direction:column;gap:10px;flex:1}
+  .card h3{font-family:var(--serif);font-size:1.24rem;margin:0;font-weight:400;letter-spacing:-.01em}
+  .card p{margin:0;color:var(--muted);font-size:.89rem;max-width:52ch}
+  .tag{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .meta{font-size:.76rem;color:var(--muted);border-top:1px solid var(--line);padding-top:9px;margin-top:2px}
+  .meta b{color:var(--text);font-weight:600}
+  .dots{display:flex;gap:6px}
+  .dot{width:16px;height:16px;border:1px solid rgba(255,255,255,.14)}
+  .open{margin-top:auto;align-self:flex-start;display:inline-flex;align-items:center;gap:8px;
+        background:var(--accent);color:#141006;text-decoration:none;font-weight:600;
+        padding:10px 17px;font-size:.91rem;transition:filter .14s ease}
+  .open:hover{filter:brightness(1.09)}
+  .open:focus-visible{outline:3px solid #fff;outline-offset:2px}
+
+  footer{border-top:1px solid var(--line);padding:26px 0 62px;margin-top:46px;
+         color:var(--muted);font-size:.86rem}
+  footer p{margin:0 0 8px;max-width:78ch}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#designs">Skip to the designs</a>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>Twelve ways your booking site could <em>look</em>.</h1>
+      <p class="lede">
+        Every one is a <strong>complete five-page website</strong> — home, readings, about,
+        booking and contact — running the same practitioner, the same five readings and the
+        same prices. <strong>The only thing that changes is the design.</strong>
+      </p>
+    </div>
+    <div>
+      <div class="note">
+        <b>How to use this:</b> open each one, click through the pages, then say which
+        direction feels like you. <b>Nothing here is a mock-up image</b> — every page is
+        real and clickable, including the booking flow.
+      </div>
+      <div class="note">
+        <b>Headings are now capped for readability</b> across all twelve, after the note that
+        oversized display type was hard to read. Hierarchy comes from colour, spacing and
+        ornament instead of raw size.
+      </div>
+    </div>
+  </header>
+
+  <main id="designs">
+
+    <h2 class="group">The newest four</h2>
+    <p class="group-note">Built with all three design skills running together, to a fresh set of
+      worlds. Readable heading sizes throughout, and each opens with a full-screen title
+      sequence.</p>
+
+    <div class="grid">
+
+      <article class="card fresh">
+        <div class="frame">
+          <div class="swatch" style="background:#F6F3EC;color:#1B4D8F"><span class="name">Azulejo</span></div>
+          <iframe src="11-azulejo/index.html" title="Preview of Azulejo" loading="lazy" tabindex="-1" scrolling="no"></iframe>
+        </div>
+        <div class="body">
+          <span class="tag">New</span>
+          <h3>Azulejo</h3>
+          <p>A Portuguese station hall tiled in cobalt on milk white. Painted narrative panels run straight across the grout seams — the grid is admitted, not hidden.</p>
+          <div class="dots" aria-hidden="true"><span class="dot" style="background:#F6F3EC"></span><span class="dot" style="background:#2E6FB7"></span><span class="dot" style="background:#1B4D8F"></span><span class="dot" style="background:#B88A24"></span></div>
+          <p class="meta"><b>Baskerville / Aptos</b> · every layout decision snaps to whole tiles</p>
+          <a class="open" href="11-azulejo/index.html">Open →</a>
+        </div>
+      </article>
+
+      <article class="card fresh">
+        <div class="frame">
+          <div class="swatch" style="background:#0E1A33;color:#E8C579"><span class="name">Nightfold</span></div>
+          <iframe src="12-nightfold/index.html" title="Preview of Nightfold" loading="lazy" tabindex="-1" scrolling="no"></iframe>
+        </div>
+        <div class="body">
+          <span class="tag">New</span>
+          <h3>Nightfold</h3>
+          <p>A city at midnight where streets crease into quilt seams and window lights become embroidered stars. Each district dreams its own weather; each reading is a district.</p>
+          <div class="dots" aria-hidden="true"><span class="dot" style="background:#0E1A33"></span><span class="dot" style="background:#E8C579"></span><span class="dot" style="background:#D8DEE9"></span><span class="dot" style="background:#2E8B8B"></span></div>
+          <p class="meta">Deformable stitched map · the city is the navigation</p>
+          <a class="open" href="12-nightfold/index.html">Open →</a>
+        </div>
+      </article>
+
+      <article class="card fresh">
+        <div class="frame">
+          <div class="swatch" style="background:#F4EFE4;color:#1F3A5F"><span class="name">Suminagashi</span></div>
+          <iframe src="13-suminagashi/index.html" title="Preview of Suminagashi" loading="lazy" tabindex="-1" scrolling="no"></iframe>
+        </div>
+        <div class="body">
+          <span class="tag">New · original</span>
+          <h3>Suminagashi</h3>
+          <p>Floating-ink marbling. Move across the tray and it <b>combs the ink</b> — and the distortion stays. Every sheet is unrepeatable, which is the truest thing anyone has said about a reading.</p>
+          <div class="dots" aria-hidden="true"><span class="dot" style="background:#F4EFE4"></span><span class="dot" style="background:#1F3A5F"></span><span class="dot" style="background:#2E8B8B"></span><span class="dot" style="background:#C4643C"></span></div>
+          <p class="meta">Live comb displacement · five marbled emblems</p>
+          <a class="open" href="13-suminagashi/index.html">Open →</a>
+        </div>
+      </article>
+
+      <article class="card fresh">
+        <div class="frame">
+          <div class="swatch" style="background:#F2EDE4;color:#141210"><span class="name">Atelier</span></div>
+          <iframe src="14-atelier/index.html" title="Preview of Atelier" loading="lazy" tabindex="-1" scrolling="no"></iframe>
+        </div>
+        <div class="body">
+          <span class="tag">New · real 3D</span>
+          <h3>Atelier</h3>
+          <p>A couture house at one-sixth scale. A dress form turns in genuine CSS 3D, tissue layers part at different depths, and the readings run as a scroll-snapped lookbook.</p>
+          <div class="dots" aria-hidden="true"><span class="dot" style="background:#F2EDE4"></span><span class="dot" style="background:#E3C4BE"></span><span class="dot" style="background:#141210"></span><span class="dot" style="background:#A8203A"></span></div>
+          <p class="meta">Real transformed planes, not a flat image rotating</p>
+          <a class="open" href="14-atelier/index.html">Open →</a>
+        </div>
+      </article>
+
+    </div>
+
+    <h2 class="group">Built by hand, earlier</h2>
+    <p class="group-note">Directed by me, then held to the same craft floor. Heading sizes have
+      been brought down since you saw them.</p>
+
+    <div class="grid">
+
+      <article class="card">
+        <div class="frame">
+          <div class="swatch" style="background:#01040A;color:#67E8F9"><span class="name">Wake</span></div>
+          <iframe src="04-luminous/index.html" title="Preview of Wake" loading="lazy" tabindex="-1" scrolling="no"></iframe>
+        </div>
+        <div class="body">
+          <h3>Wake</h3>
+          <p>A night sea igniting with plankton. Move the pointer and the water lights along your path, then fades.</p>
+          <div class="dots" aria-hidden="true"><span class="dot" style="background:#01040A"></span><span class="dot" style="background:#38BDF8"></span><span class="dot" style="background:#67E8F9"></span><span class="dot" style="background:#0F3D4A"></span></div>
+          <p class="meta">Thousands of live particles</p>
+          <a class="open" href="04-luminous/index.html">Open →</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="frame">
+          <div class="swatch" style="background:#F7F1E3;color:#070706"><span class="name">Push Pin</span></div>
+          <iframe src="06-pushpin/index.html" title="Preview of Push Pin" loading="lazy" tabindex="-1" scrolling="no"></iframe>
+        </div>
+        <div class="body">
+          <h3>Push Pin</h3>
+          <p>A jet-black profile blooming into eleven ribbons of flat candy colour. Joyful and graphic — the opposite of occult.</p>
+          <div class="dots" aria-hidden="true"><span class="dot" style="background:#F7F1E3"></span><span class="dot" style="background:#EF5DA8"></span><span class="dot" style="background:#18A7A7"></span><span class="dot" style="background:#F2B632"></span></div>
+          <p class="meta">Hand-drawn hero and five emblems</p>
+          <a class="open" href="06-pushpin/index.html">Open →</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="frame">
+          <div class="swatch" style="background:#080B1E;color:#E8ECF7"><span class="name">Midnight Observatory</span></div>
+          <iframe src="01-celestial/index.html" title="Preview of Midnight Observatory" loading="lazy" tabindex="-1" scrolling="no"></iframe>
+        </div>
+        <div class="body">
+          <h3>Midnight Observatory</h3>
+          <p>Deep navy, a drifting starfield and constellation lines. A planetarium after hours.</p>
+          <div class="dots" aria-hidden="true"><span class="dot" style="background:#080B1E"></span><span class="dot" style="background:#111633"></span><span class="dot" style="background:#C9D1E8"></span><span class="dot" style="background:#C2A356"></span></div>
+          <p class="meta">Canvas starfield</p>
+          <a class="open" href="01-celestial/index.html">Open →</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="frame">
+          <div class="swatch" style="background:#F2E8D5;color:#1F1710"><span class="name">The Grimoire</span></div>
+          <iframe src="05-grimoire/index.html" title="Preview of The Grimoire" loading="lazy" tabindex="-1" scrolling="no"></iframe>
+        </div>
+        <div class="body">
+          <h3>The Grimoire</h3>
+          <p>Parchment, oxblood and aged gold with engraved ornament. Heritage, not costume.</p>
+          <div class="dots" aria-hidden="true"><span class="dot" style="background:#F2E8D5"></span><span class="dot" style="background:#E8D9BC"></span><span class="dot" style="background:#6E1D1D"></span><span class="dot" style="background:#9C7A3C"></span></div>
+          <p class="meta">Drawn SVG ornament</p>
+          <a class="open" href="05-grimoire/index.html">Open →</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="frame">
+          <div class="swatch" style="background:#0A0A0A;color:#E8DB00"><span class="name">Cabaret</span></div>
+          <iframe src="07-cabaret/index.html" title="Preview of Cabaret" loading="lazy" tabindex="-1" scrolling="no"></iframe>
+        </div>
+        <div class="body">
+          <h3>Cabaret</h3>
+          <p>Acid yellow on black, no midtone anywhere. Five readings as five acts of an evening.</p>
+          <div class="dots" aria-hidden="true"><span class="dot" style="background:#0A0A0A"></span><span class="dot" style="background:#E8DB00"></span><span class="dot" style="background:#C62828"></span><span class="dot" style="background:#F5F5F5"></span></div>
+          <p class="meta">Expressionist SVG figure</p>
+          <a class="open" href="07-cabaret/index.html">Open →</a>
+        </div>
+      </article>
+
+    </div>
+
+    <h2 class="group">Built by a skill, executing itself</h2>
+    <p class="group-note">Each produced by following one installed design skill literally, end to
+      end, on the identical brief — so you can see what each skill does when it drives the work.</p>
+
+    <div class="grid">
+
+      <article class="card">
+        <div class="frame">
+          <div class="swatch" style="background:#12100E;color:#E9E2D6"><span class="name">Premium</span></div>
+          <iframe src="08-skill-premium/index.html" title="Preview of Premium" loading="lazy" tabindex="-1" scrolling="no"></iframe>
+        </div>
+        <div class="body">
+          <span class="tag">Premium Frontend UI</span>
+          <h3>Design 08</h3>
+          <p>Entry sequence, pinned scroll narrative, magnetic components, custom cursor. Its headings ran to 12rem before the cap — the largest of all twelve.</p>
+          <p class="meta">github/awesome-copilot</p>
+          <a class="open" href="08-skill-premium/index.html">Open →</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="frame">
+          <div class="swatch" style="background:#1A1614;color:#F0E9E2"><span class="name">Design Review</span></div>
+          <iframe src="09-skill-msdesign/index.html" title="Preview of Design Review" loading="lazy" tabindex="-1" scrolling="no"></iframe>
+        </div>
+        <div class="body">
+          <span class="tag">Frontend Design Review</span>
+          <h3>Design 09</h3>
+          <p>Commits to a written aesthetic direction before any code, then reviews its own build against three quality pillars. The only one that was already within the heading cap.</p>
+          <p class="meta">microsoft/skills · CSS-only motion</p>
+          <a class="open" href="09-skill-msdesign/index.html">Open →</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="frame">
+          <div class="swatch" style="background:#f3ecdc;color:#8b5f33"><span class="name">Survey</span></div>
+          <iframe src="10-survey/index.html" title="Preview of Survey" loading="lazy" tabindex="-1" scrolling="no"></iframe>
+        </div>
+        <div class="body">
+          <span class="tag">impeccable</span>
+          <h3>Survey</h3>
+          <p>A life read as terrain — contours, grid references and spot heights, with the map legend working as the navigation. The direction was assigned by the skill's own concept engine, not chosen by me.</p>
+          <p class="meta">impeccable.style · seed 600109cd</p>
+          <a class="open" href="10-survey/index.html">Open →</a>
+        </div>
+      </article>
+
+    </div>
+  </main>
+
+  <footer>
+    <p><b>Aurelia Sable is a fictional practitioner.</b> The name, readings, prices and
+    testimonials are demo content, identical across all twelve so the comparison is fair.
+    Your site would carry your own. Prices lead in dollars.</p>
+    <p>Run <b>start-demos.bat</b> to serve these locally so the previews above load. Opening
+    any design directly also works.</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Book a tarot reading with Aurelia Sable"><title>Book · Aurelia Sable</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head>
+<body>
+  <div class="entry-seq" aria-hidden="true"><span></span><span></span><span></span></div><canvas id="plankton-field" aria-hidden="true"></canvas><div class="grain" aria-hidden="true"></div><a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header" data-scroll-nav><a class="brand wake-link" href="index.html">Aurelia Sable</a><nav class="wake-nav" aria-label="Primary"><a class="wake-link" href="index.html">Home</a><a class="wake-link" href="readings.html">Readings</a><a class="wake-link" href="about.html">About</a><a class="wake-link" href="book.html" aria-current="page">Book</a><a class="wake-link" href="contact.html">Contact</a></nav></header>
+  <div class="demo-badge">Demo — Design 04: Wake</div>
+  <main id="main">
+    <section class="page-hero slim"><h1>Book a reading</h1><p>Five formats, from a fifteen-minute voice note to a ninety-minute session.</p></section>
+    <section class="booking-flow" aria-label="Booking steps">
+      <ol class="step-current"><li><strong>Choose a reading</strong><span>Five formats, from a fifteen-minute voice note to a ninety-minute session.</span></li><li><strong>Pick a time</strong><span>Live availability in your own time zone. No back-and-forth by message.</span></li><li><strong>Pay securely</strong><span>Card or UPI. You are charged once, at the time of booking.</span></li><li><strong>Receive the reading</strong><span>A calendar invite for live sessions; an email for written and audio ones.</span></li></ol>
+      <form class="booking-form" action="#" method="post" novalidate>
+        <fieldset><legend>Choose a reading</legend><div class="choice-current">
+          <button type="button" class="service-choice" id="book-threshold"><span>The Threshold Reading</span><small>45 minutes · Live video · $29 / ₹2,400</small></button>
+          <button type="button" class="service-choice" id="book-full-life"><span>The Full Life Reading</span><small>90 minutes · Live video · $58 / ₹4,800</small></button>
+          <button type="button" class="service-choice" id="book-year-ahead"><span>The Year Ahead</span><small>75 minutes · Live video · $47 / ₹3,900</small></button>
+          <button type="button" class="service-choice" id="book-written"><span>The Written Reading</span><small>Delivered in 3 days · Written, by email · $22 / ₹1,800</small></button>
+          <button type="button" class="service-choice" id="book-voice-note"><span>The Voice Note</span><small>Delivered in 48 hours · Audio, by email · $11 / ₹900</small></button>
+        </div></fieldset>
+        <fieldset><legend>Pick a date</legend><div class="date-current"><button type="button" class="date-choice">Tue 22 Sep</button><button type="button" class="date-choice">Wed 23 Sep</button><button type="button" class="date-choice">Fri 25 Sep</button><button type="button" class="date-choice">Sun 27 Sep</button></div></fieldset>
+        <fieldset><legend>Pick a time</legend><div class="time-current"><button type="button" class="time-choice">09:30</button><button type="button" class="time-choice">12:00</button><button type="button" class="time-choice">16:30</button><button type="button" class="time-choice">20:00</button></div></fieldset>
+        <fieldset><legend>Your details</legend><div class="form-grid"><label>Name <input name="name" autocomplete="name" required></label><label>Email <input name="email" type="email" autocomplete="email" required></label><label class="wide">Question <textarea name="question" rows="5" required></textarea></label><label>Birth date <input name="birth-date" type="text" placeholder="DD MM YYYY"></label><label>Birth time <input name="birth-time" type="text" placeholder="HH:MM or unknown"></label><label class="wide">Birth place <input name="birth-place" type="text"></label></div></fieldset>
+        <p class="form-note" role="status">This demo form does not submit.</p><button class="button magnetic" type="submit">Hold this time</button>
+      </form>
+    </section>
+  </main>
+  <footer class="site-footer"><div><p class="footer-name">Aurelia Sable</p><p>Bangalore, India · reads worldwide</p></div><div><a class="wake-link" href="mailto:hello@aureliasable.example">hello@aureliasable.example</a><a class="wake-link" href="contact.html">Policies</a></div></footer><script src="app.js"></script>
+</body></html>

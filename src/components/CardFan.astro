@@ -1,0 +1,225 @@
+---
+/**
+ * CardFan — the hero's centrepiece.
+ *
+ * A spread of drawn cards arranged on an arc, with a slow float and a
+ * pointer-driven parallax tilt. It is the one moment of spectacle on the site,
+ * and it is still only SVG and transforms: no images, no canvas, no library.
+ *
+ * Everything degrades honestly — without JavaScript the fan is simply static,
+ * and under `prefers-reduced-motion` both the float and the parallax stop.
+ */
+
+import TarotCard from './TarotCard.astro';
+import type { CardFace } from './TarotCard.astro';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+
+/**
+ * Ordered left to right. `lift` raises a card out of the arc, and `depth`
+ * drives how far it moves under parallax — the nearer cards move most, which
+ * is what sells the illusion of depth.
+ */
+const CARDS: { face: CardFace; angle: number; x: number; y: number; depth: number; scale: number }[] = [
+  { face: 'moon', angle: -21, x: -168, y: 34, depth: 0.45, scale: 0.9 },
+  { face: 'wheel', angle: -10, x: -86, y: 8, depth: 0.7, scale: 0.96 },
+  { face: 'star', angle: 0, x: 0, y: -12, depth: 1, scale: 1.05 },
+  { face: 'sun', angle: 10, x: 86, y: 8, depth: 0.7, scale: 0.96 },
+  { face: 'tower', angle: 21, x: 168, y: 34, depth: 0.45, scale: 0.9 },
+];
+---
+
+<div class:list={['fan', className]} data-fan aria-hidden="true">
+  <div class="fan__halo"></div>
+
+  <div class="fan__stage" data-fan-stage>
+    {
+      CARDS.map((card, index) => (
+        <div
+          class="fan__card"
+          data-depth={card.depth}
+          style={`--angle:${card.angle}deg; --x:${card.x}px; --y:${card.y}px; --scale:${card.scale}; --delay:${index * 0.45}s; --z:${10 - Math.abs(index - 2)}`}
+        >
+          <TarotCard face={card.face} width={196} />
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="fan__floor"></div>
+</div>
+
+<style>
+  .fan {
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: 100%;
+    block-size: clamp(300px, 42vw, 440px);
+    perspective: 1400px;
+    pointer-events: none;
+  }
+
+  /* Warm light pooling behind the spread. */
+  .fan__halo {
+    position: absolute;
+    inset-block-start: 8%;
+    inline-size: min(620px, 88%);
+    block-size: 74%;
+    background: radial-gradient(
+      ellipse 50% 50% at 50% 45%,
+      oklch(0.74 0.1 80 / 0.15) 0%,
+      oklch(0.74 0.1 80 / 0.05) 42%,
+      transparent 72%
+    );
+    filter: blur(6px);
+  }
+
+  /* A soft reflection, so the cards feel set on a surface rather than adrift. */
+  .fan__floor {
+    position: absolute;
+    inset-block-end: 4%;
+    inline-size: min(520px, 80%);
+    block-size: 60px;
+    background: radial-gradient(ellipse 50% 50% at 50% 50%, oklch(0 0 0 / 0.55) 0%, transparent 70%);
+  }
+
+  .fan__stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: 100%;
+    block-size: 100%;
+    transform-style: preserve-3d;
+    transition: transform 600ms var(--ease-smooth);
+  }
+
+  .fan__card {
+    position: absolute;
+    z-index: var(--z);
+    transform: translate3d(var(--x), var(--y), 0) rotate(var(--angle)) scale(var(--scale));
+    animation: fan-float 7s var(--ease-calm) infinite;
+    animation-delay: var(--delay);
+    will-change: transform;
+  }
+
+  /* The float is applied to an inner wrapper via the card itself so it composes
+     with the fan transform rather than fighting it. */
+  .fan__card > :global(svg) {
+    transition: transform 500ms var(--ease-smooth);
+  }
+
+  @keyframes fan-float {
+    0%,
+    100% {
+      transform: translate3d(var(--x), var(--y), 0) rotate(var(--angle)) scale(var(--scale));
+    }
+    50% {
+      transform: translate3d(var(--x), calc(var(--y) - 12px), 0) rotate(var(--angle)) scale(var(--scale));
+    }
+  }
+
+  /* Narrow screens: drop the outer pair and tighten the arc, rather than
+     letting five cards shrink into illegibility. */
+  @media (max-width: 860px) {
+    .fan__card:first-child,
+    .fan__card:last-child {
+      display: none;
+    }
+    .fan__card {
+      --x: calc(var(--x) * 0.62);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .fan {
+      block-size: clamp(240px, 62vw, 320px);
+    }
+    .fan__card {
+      --x: calc(var(--x) * 0.5);
+      --scale: 0.74;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fan__card {
+      animation: none;
+    }
+    .fan__stage {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const fan = document.querySelector<HTMLElement>('[data-fan]');
+  const stage = document.querySelector<HTMLElement>('[data-fan-stage]');
+
+  if (fan && stage && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const cards = Array.from(stage.querySelectorAll<HTMLElement>('.fan__card'));
+    let frame = 0;
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+
+    const render = () => {
+      // Ease toward the pointer rather than tracking it exactly; the lag is
+      // what makes the movement feel weighted instead of twitchy.
+      currentX += (targetX - currentX) * 0.08;
+      currentY += (targetY - currentY) * 0.08;
+
+      stage.style.transform = `rotateY(${currentX * 7}deg) rotateX(${-currentY * 5}deg)`;
+
+      for (const card of cards) {
+        const depth = Number(card.dataset.depth ?? 0.5);
+        const svg = card.querySelector('svg');
+        if (svg) {
+          svg.style.transform = `translate3d(${currentX * 22 * depth}px, ${currentY * 14 * depth}px, 0)`;
+        }
+      }
+
+      frame = 0;
+    };
+
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(render);
+    };
+
+    // Track against the viewport, not the fan, so the spread keeps responding
+    // while the visitor's pointer is anywhere in the hero.
+    const onMove = (event: PointerEvent) => {
+      const rect = fan.getBoundingClientRect();
+      targetX = (event.clientX - (rect.left + rect.width / 2)) / (rect.width || 1);
+      targetY = (event.clientY - (rect.top + rect.height / 2)) / (rect.height || 1);
+      targetX = Math.max(-1.4, Math.min(1.4, targetX));
+      targetY = Math.max(-1.4, Math.min(1.4, targetY));
+      schedule();
+    };
+
+    const onLeave = () => {
+      targetX = 0;
+      targetY = 0;
+      schedule();
+    };
+
+    window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('pointerleave', onLeave, { passive: true });
+
+    // Settle back to rest when the fan scrolls out of view, so we are not
+    // animating something nobody can see.
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry && !entry.isIntersecting) onLeave();
+        },
+        { threshold: 0 },
+      );
+      observer.observe(fan);
+    }
+  }
+</script>

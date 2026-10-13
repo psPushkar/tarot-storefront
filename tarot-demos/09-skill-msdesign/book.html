@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Tarot for people at a crossroads">
+  <title>Book ? Aurelia Sable</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="loader entry-seq" aria-hidden="true"><span></span><span></span><span></span><p>Reading the room</p></div>
+  <svg class="grain-source" aria-hidden="true" width="0" height="0" focusable="false"><filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.88" numOctaves="4" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter></svg>
+  <a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header" data-nav>
+  <nav class="nav-shell" aria-label="Primary navigation">
+    <a class="brand" href="index.html" aria-label="Aurelia Sable home"><span>A</span><span>Sable</span></a>
+    <div class="nav-links"><a href="index.html">Opening</a><a href="readings.html">Readings</a><a href="about.html">About</a><a href="book.html" aria-current="page">Book</a><a href="contact.html">Contact</a></div>
+    <a class="nav-cta magnet" href="book.html">Book a reading</a>
+  </nav>
+</header>
+  <main id="main">
+<section class="page-intro booking-intro"><p class="eyebrow">No back-and-forth by message</p><h1 class="split-headline" aria-label="Book a reading"><span aria-hidden="true"><span class="word" style="--i:0">Book</span><span class="word" style="--i:1">a</span><span class="word" style="--i:2">reading</span></span></h1><p class="lead">Live availability in your own time zone. No back-and-forth by message.</p></section>
+<section class="booking-layout">
+  <aside class="steps-panel"><ol><li><span>01</span><div><h2>Choose a reading</h2><p>Five formats, from a fifteen-minute voice note to a ninety-minute session.</p></div></li><li><span>02</span><div><h2>Pick a time</h2><p>Live availability in your own time zone. No back-and-forth by message.</p></div></li><li><span>03</span><div><h2>Pay securely</h2><p>Card or UPI. You are charged once, at the time of booking.</p></div></li><li><span>04</span><div><h2>Receive the reading</h2><p>A calendar invite for live sessions; an email for written and audio ones.</p></div></li></ol></aside>
+  <form class="booking-form" novalidate>
+    <div class="form-section"><h2>Choose a reading</h2><div class="service-picker"><button type="button" class="picker-card" data-service="threshold"><span>The Threshold Reading</span><small>Live video ? 45 minutes</small><strong>$29 / ₹2,400</strong></button><button type="button" class="picker-card" data-service="full-life"><span>The Full Life Reading</span><small>Live video ? 90 minutes</small><strong>$58 / ₹4,800</strong></button><button type="button" class="picker-card" data-service="year-ahead"><span>The Year Ahead</span><small>Live video ? 75 minutes</small><strong>$47 / ₹3,900</strong></button><button type="button" class="picker-card" data-service="written"><span>The Written Reading</span><small>Written, by email ? Delivered in 3 days</small><strong>$22 / ₹1,800</strong></button><button type="button" class="picker-card" data-service="voice-note"><span>The Voice Note</span><small>Audio, by email ? Delivered in 48 hours</small><strong>$11 / ₹900</strong></button></div><label for="service">Selected service</label><select id="service" name="service"><option value="threshold">The Threshold Reading ? 45 minutes ? $29 / ₹2,400</option><option value="full-life">The Full Life Reading ? 90 minutes ? $58 / ₹4,800</option><option value="year-ahead">The Year Ahead ? 75 minutes ? $47 / ₹3,900</option><option value="written">The Written Reading ? Delivered in 3 days ? $22 / ₹1,800</option><option value="voice-note">The Voice Note ? Delivered in 48 hours ? $11 / ₹900</option></select></div>
+    <div class="form-section"><h2>Pick a time</h2><div class="calendar-shell" aria-label="Available dates"><div class="calendar-month"><span>October</span><strong>2026</strong></div><div class="date-strip" aria-label="Available dates"><button type="button" class="date active">15<span>Tue</span></button><button type="button" class="date">16<span>Wed</span></button><button type="button" class="date">17<span>Thu</span></button><button type="button" class="date">19<span>Sat</span></button><button type="button" class="date">20<span>Sun</span></button></div><div class="slots"><button type="button" class="slot" data-slot="Tue 15 Oct ? 10:30">Tue 15 Oct ? 10:30</button><button type="button" class="slot" data-slot="Tue 15 Oct ? 18:00">Tue 15 Oct ? 18:00</button><button type="button" class="slot" data-slot="Wed 16 Oct ? 11:00">Wed 16 Oct ? 11:00</button><button type="button" class="slot" data-slot="Thu 17 Oct ? 20:30">Thu 17 Oct ? 20:30</button><button type="button" class="slot" data-slot="Sat 19 Oct ? 09:30">Sat 19 Oct ? 09:30</button><button type="button" class="slot" data-slot="Sun 20 Oct ? 17:00">Sun 20 Oct ? 17:00</button></div></div><input type="hidden" id="chosenSlot" name="chosenSlot"></div>
+    <div class="form-section"><h2>Your details</h2><div class="form-grid"><label>Name<input name="name" autocomplete="name" required></label><label>Email<input name="email" type="email" autocomplete="email" required></label><label class="wide">Question<textarea name="question" rows="5" required></textarea></label><label class="wide">Birth details<input name="birth" placeholder="Date, time and place if you use them"></label></div></div>
+    <div class="form-error" role="alert" aria-live="polite"></div>
+    <button class="button primary magnet" type="submit">Review booking</button>
+    <p class="form-note">Readings are offered for reflection and entertainment. They are not medical, legal, financial or psychological advice.</p>
+  </form>
+</section></main>
+  <footer class="site-footer">
+  <div>
+    <p class="footer-mark">Aurelia Sable</p>
+    <p>Tarot for people at a crossroads</p>
+    <p>Bangalore, India · reads worldwide</p>
+  </div>
+  <div>
+    <p><a href="mailto:hello@aureliasable.example">hello@aureliasable.example</a></p>
+    <p>@aureliasable</p>
+  </div>
+  <p class="disclaimer">Readings are offered for reflection and entertainment. They are not medical, legal, financial or psychological advice.</p>
+</footer>
+<div class="demo-badge" aria-label="Demo ? Design 09: Design Review skill-built">Demo ? Design 09:<br>Design Review (skill-built)</div>
+  <script src="app.js"></script>
+</body>
+</html>

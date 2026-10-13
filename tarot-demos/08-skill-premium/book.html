@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Book ? Aurelia Sable</title>
+  <meta name="description" content="Choose a reading, date and time.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700;6..96,900&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,650&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="book">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="preloader entry-seq" aria-hidden="true"><div class="preloader__door preloader__door--left"></div><div class="preloader__door preloader__door--right"></div><p class="preloader__text">Aurelia Sable</p></div>
+  <div class="custom-cursor" aria-hidden="true"><span></span></div>
+  <div class="fixed-badge">Demo ? Design 08: Premium (skill-built)</div>
+  <svg class="noise-svg" aria-hidden="true" focusable="false"><filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#grain)"/></svg>
+  <div class="ambient-field" aria-hidden="true"><span class="orb orb--one parallax" data-speed="0.18"></span><span class="orb orb--two parallax" data-speed="-0.12"></span><span class="constellation"></span></div>
+  <header class="site-header" data-header>
+    <a class="brand magnetic" href="index.html" aria-label="Aurelia Sable home"><span>A</span><span>S</span></a>
+    <nav class="primary-nav" aria-label="Primary navigation">
+      <a class="nav-link magnetic" href="index.html" data-preview="Home"><span>Home</span></a>
+<a class="nav-link magnetic" href="readings.html" data-preview="Readings"><span>Readings</span></a>
+<a class="nav-link magnetic" href="about.html" data-preview="About"><span>About</span></a>
+<a class="nav-link magnetic" href="book.html" aria-current="page" data-preview="Book"><span>Book</span></a>
+<a class="nav-link magnetic" href="contact.html" data-preview="Contact"><span>Contact</span></a>
+    </nav>
+    <a class="nav-cta magnetic" href="book.html">Book</a>
+  </header>
+  <main id="main">
+
+<section class="page-hero compact" aria-labelledby="book-title"><p class="eyebrow">Booking</p><h1 id="book-title" class="split-heading" data-split aria-label="Choose a reading">Choose a reading</h1><p class="lede">Live availability in your own time zone. No back-and-forth by message.</p></section>
+<section class="booking-steps" aria-labelledby="steps-title"><h2 id="steps-title">How booking works</h2><ol><li><span>01</span><strong>Choose a reading</strong><p>Five formats, from a fifteen-minute voice note to a ninety-minute session.</p></li><li><span>02</span><strong>Pick a time</strong><p>Live availability in your own time zone. No back-and-forth by message.</p></li><li><span>03</span><strong>Pay securely</strong><p>Card or UPI. You are charged once, at the time of booking.</p></li><li><span>04</span><strong>Receive the reading</strong><p>A calendar invite for live sessions; an email for written and audio ones.</p></li></ol></section>
+<section class="booking-shell" aria-labelledby="form-title">
+  <form class="booking-form" action="#" method="post">
+    <h2 id="form-title">Choose a reading</h2>
+    <label for="service">Service picker</label><select id="service" name="service"><option value="threshold">The Threshold Reading ? 45 minutes ? $29 / ₹2,400</option><option value="full-life">The Full Life Reading ? 90 minutes ? $58 / ₹4,800</option><option value="year-ahead">The Year Ahead ? 75 minutes ? $47 / ₹3,900</option><option value="written">The Written Reading ? Delivered in 3 days ? $22 / ₹1,800</option><option value="voice-note">The Voice Note ? Delivered in 48 hours ? $11 / ₹900</option></select>
+    <fieldset><legend>Choose a reading</legend><label class="service-option magnetic"><input type="radio" name="reading" value="threshold" checked><span><strong>The Threshold Reading</strong><em>Live video ? 45 minutes ? $29 / ₹2,400</em></span></label><label class="service-option magnetic"><input type="radio" name="reading" value="full-life" ><span><strong>The Full Life Reading</strong><em>Live video ? 90 minutes ? $58 / ₹4,800</em></span></label><label class="service-option magnetic"><input type="radio" name="reading" value="year-ahead" ><span><strong>The Year Ahead</strong><em>Live video ? 75 minutes ? $47 / ₹3,900</em></span></label><label class="service-option magnetic"><input type="radio" name="reading" value="written" ><span><strong>The Written Reading</strong><em>Written, by email ? Delivered in 3 days ? $22 / ₹1,800</em></span></label><label class="service-option magnetic"><input type="radio" name="reading" value="voice-note" ><span><strong>The Voice Note</strong><em>Audio, by email ? Delivered in 48 hours ? $11 / ₹900</em></span></label></fieldset>
+    <fieldset><legend>Date selector</legend><div class="date-grid"><label class="date-card magnetic"><input type="radio" name="date" value="Mon 21 Oct" checked><span>Mon 21 Oct</span></label><label class="date-card magnetic"><input type="radio" name="date" value="Tue 22 Oct" ><span>Tue 22 Oct</span></label><label class="date-card magnetic"><input type="radio" name="date" value="Thu 24 Oct" ><span>Thu 24 Oct</span></label><label class="date-card magnetic"><input type="radio" name="date" value="Fri 25 Oct" ><span>Fri 25 Oct</span></label></div></fieldset>
+    <fieldset><legend>Available slots</legend><div class="slot-grid"><label class="slot-card magnetic"><input type="radio" name="slot" value="09:30" ><span>09:30</span></label><label class="slot-card magnetic"><input type="radio" name="slot" value="11:00" checked><span>11:00</span></label><label class="slot-card magnetic"><input type="radio" name="slot" value="14:30" ><span>14:30</span></label><label class="slot-card magnetic"><input type="radio" name="slot" value="17:00" ><span>17:00</span></label><label class="slot-card magnetic"><input type="radio" name="slot" value="20:30" ><span>20:30</span></label></div></fieldset>
+    <div class="field-grid"><label>Name<input name="name" autocomplete="name" required></label><label>Email<input name="email" type="email" autocomplete="email" required></label></div>
+    <label>Your question<textarea name="question" rows="5" required></textarea></label>
+    <label>Birth details, if relevant<textarea name="birth-details" rows="3" placeholder="Date, time and place ? optional"></textarea></label>
+    <button class="button magnetic" type="submit">Hold this reading</button>
+  </form>
+  <aside class="booking-note"><h2>What happens after I book?</h2><p>You get a confirmation with a calendar invite and a link. Ten minutes before, you get a reminder. That is the whole process.</p><p><strong>Cancellation:</strong> Free up to 24 hours before. Inside 24 hours, the session is held as credit for 90 days.</p></aside>
+</section>
+  </main>
+  
+<footer class="site-footer" aria-label="Site footer">
+  <div class="footer-mark">Aurelia Sable</div>
+  <div class="footer-grid">
+    <p>Tarot for people at a crossroads</p>
+    <p>Bangalore, India · reads worldwide</p>
+    <p><a href="mailto:hello@aureliasable.example">hello@aureliasable.example</a><br><a href="contact.html">@aureliasable</a></p>
+  </div>
+  <p class="fineprint">Readings are offered for reflection and entertainment. They are not medical, legal, financial or psychological advice.</p>
+</footer>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/split-type"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Photo from '../components/Photo.astro';
+import { photos } from '../lib/photos';
+import { getBrand } from '../lib/brand';
+import { breadcrumbSchema } from '../lib/schema';
+import { contactIntro } from '../lib/content';
+import ContactForm from '../components/islands/ContactForm';
+
+const { profile } = await getBrand();
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Contact', path: '/contact' },
+];
+
+const socialEntries = Object.entries(profile.socials ?? {}).filter(
+  ([, url]) => typeof url === 'string' && url.startsWith('http'),
+) as [string, string][];
+
+function socialLabel(key: string): string {
+  const labels: Record<string, string> = {
+    instagram: 'Instagram',
+    facebook: 'Facebook',
+    tiktok: 'TikTok',
+    youtube: 'YouTube',
+    website: 'Website',
+  };
+  return labels[key] ?? key;
+}
+---
+
+<Base
+  title="Contact"
+  description="Write to Aurelia Sable about a reading, a question taking shape, or anything else. She replies within two working days, usually sooner."
+  schemas={[breadcrumbSchema(trail)]}
+>
+  <PageHeader variant="editorial" eyebrow={contactIntro.eyebrow} heading={contactIntro.heading} trail={trail} />
+
+  <section class="section shell" aria-label="Contact form and details">
+    <div class="contact-split">
+      <div class="contact-text" data-reveal>
+        <p class="contact-body">{contactIntro.body}</p>
+        <p class="contact-reassurance">I read everything myself and reply within two working days, usually sooner. If it is urgent, say so and I will move it up.</p>
+
+        {socialEntries.length > 0 && (
+          <nav class="contact-socials" aria-label="Social links">
+            <p class="contact-socials__label">Elsewhere</p>
+            <ul>
+              {socialEntries.map(([key, url]) => (
+                <li><a href={url} class="link" target="_blank" rel="noopener noreferrer">{socialLabel(key)}</a></li>
+              ))}
+            </ul>
+          </nav>
+        )}
+
+        <div class="contact-figure">
+          <Photo
+            photo={photos.moonBlack}
+            ratio="square"
+            width={520}
+            sizes="(min-width: 900px) 420px, 100vw"
+          />
+        </div>
+      </div>
+
+      <div class="well contact-form-well" data-reveal>
+        <ContactForm client:visible />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .contact-figure {
+    margin-block-start: clamp(32px, 5vw, 48px);
+    max-inline-size: 420px;
+  }
+  .contact-split {
+    display: grid;
+    gap: clamp(32px, 5vw, 72px);
+  }
+  @media (min-width: 1024px) {
+    .contact-split {
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+    }
+  }
+  .contact-text {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .contact-body {
+    font-size: var(--text-lead);
+    color: var(--color-ink-soft);
+    max-inline-size: 46ch;
+  }
+  .contact-reassurance {
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-muted);
+    max-inline-size: 46ch;
+  }
+  .contact-socials__label {
+    font-family: var(--font-eyebrow);
+    font-size: var(--text-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-gold-dim);
+    margin-block-end: 12px;
+  }
+  .contact-socials ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    font-size: var(--text-copy-sm);
+  }
+  .contact-form-well {
+    padding: clamp(24px, 3vw, 40px);
+  }
+</style>

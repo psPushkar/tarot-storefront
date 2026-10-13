@@ -1,0 +1,96 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import BookingLookup from '../../components/islands/BookingLookup.tsx';
+---
+
+<Base title="Manage booking" description="View, reschedule or cancel your booking." noindex={true}>
+  <PageHeader variant="compact" heading="Find a booking" />
+  <section class="shell section-sm">
+    <BookingLookup client:only="preact" />
+  </section>
+</Base>
+
+<style is:global>
+  .lookup {
+    min-block-size: 300px;
+  }
+  .lookup__split {
+    display: grid;
+    gap: clamp(24px, 4vw, 48px);
+  }
+  @media (min-width: 1024px) {
+    .lookup__split {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+  .lookup__details {
+    position: sticky;
+    top: 108px;
+  }
+  .lookup__details-top {
+    margin-block-end: 12px;
+  }
+  .lookup__service {
+    font-family: var(--font-display);
+    font-size: var(--text-display-sm);
+    color: var(--color-ink);
+    margin-block-end: 16px;
+  }
+  .lookup__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .lookup__action-card {
+    display: flex;
+    flex-direction: column;
+  }
+  .lookup__action-heading {
+    font-family: var(--font-display);
+    font-size: var(--text-display-sm);
+    color: var(--color-ink);
+    margin-block-end: 16px;
+  }
+  .lookup__cancel-btn {
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+  }
+  .lookup__cancel-btn:hover:not(:disabled) {
+    background: var(--color-danger-bg);
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+  }
+  .lookup__cancel-confirm {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .lookup__cancel-text {
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+  }
+  .lookup__cancel-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .lookup__form-wrap {
+    max-inline-size: 460px;
+  }
+  .lookup__heading {
+    font-family: var(--font-display);
+    font-size: var(--text-display-sm);
+    color: var(--color-ink);
+    margin-block-end: 12px;
+  }
+  .lookup__body {
+    font-size: var(--text-copy);
+    color: var(--color-ink-soft);
+    margin-block-end: 20px;
+  }
+  .lookup__error {
+    max-inline-size: 460px;
+  }
+</style>

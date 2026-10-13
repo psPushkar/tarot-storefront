@@ -1,0 +1,121 @@
+---
+import { formatDuration, serviceTypeLabel, splitMoney } from '../lib/format';
+import type { Service } from '../lib/types';
+import Ornament from './Ornament.astro';
+
+interface Props {
+  service: Service;
+  /** Featured cards get a gilt hairline and corner flourishes. */
+  featured?: boolean;
+}
+
+const { service, featured = false } = Astro.props;
+const { symbol, amount } = splitMoney(service.price_cents, service.currency);
+---
+
+<article class:list={['card card-interactive service-card', { 'service-card--featured': featured }]} data-reveal>
+  {
+    featured && (
+      <>
+        <Ornament motif="flourish" size={34} class="service-card__corner service-card__corner--tl" />
+        <Ornament motif="flourish" size={34} class="service-card__corner service-card__corner--br" />
+      </>
+    )
+  }
+
+  <p class="eyebrow">{serviceTypeLabel(service.type)}</p>
+
+  <h3 class="service-card__title">
+    <a href={`/services/${service.slug}`} class="service-card__link">
+      {service.title}
+    </a>
+  </h3>
+
+  <p class="service-card__body clamp-3">{service.description}</p>
+
+  <div class="service-card__foot">
+    <div class="service-card__price">
+      <span class="price">
+        <span class="price-currency">{symbol}</span>{amount}
+      </span>
+      <span class="badge">{formatDuration(service.duration_min)}</span>
+    </div>
+
+    <span class="link-onward" aria-hidden="true">
+      Read more
+      <Ornament motif="arrow" size={14} />
+    </span>
+  </div>
+</article>
+
+<style>
+  .service-card {
+    position: relative;
+    gap: 14px;
+    block-size: 100%;
+  }
+
+  .service-card--featured {
+    border-color: var(--color-line-gold);
+  }
+
+  .service-card__corner {
+    position: absolute;
+    color: var(--color-gold-dim);
+    pointer-events: none;
+  }
+  .service-card__corner--tl {
+    inset-block-start: 10px;
+    inset-inline-start: 10px;
+  }
+  .service-card__corner--br {
+    inset-block-end: 10px;
+    inset-inline-end: 10px;
+    transform: rotate(180deg);
+  }
+
+  .service-card__title {
+    font-size: var(--text-display-sm);
+    color: var(--color-ink);
+  }
+
+  /* The whole card is the hit area, but only the title is the link, so the
+     accessible name stays short and the focus ring lands somewhere sensible. */
+  .service-card__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+  .service-card:focus-within {
+    border-color: var(--color-line-gold);
+  }
+
+  .service-card__body {
+    flex: 1;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+  }
+
+  .service-card__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-block-start: 6px;
+    padding-block-start: 20px;
+    border-block-start: 1px solid var(--color-line);
+  }
+
+  .service-card__price {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .service-card:hover .link-onward {
+    gap: 12px;
+    color: var(--color-gold-glow);
+  }
+</style>

@@ -1,0 +1,379 @@
+---
+/**
+ * Site navigation.
+ *
+ * Transparent over the hero, then settles onto a blurred bar once the visitor
+ * scrolls past it. The mobile drawer is a plain <dialog>-free implementation so
+ * it works identically everywhere, with focus handling done by hand.
+ */
+
+import Ornament from './Ornament.astro';
+
+interface Props {
+  siteName: string;
+  /** Current path, for `aria-current`. */
+  path: string;
+}
+
+const { siteName, path } = Astro.props;
+
+const links = [
+  { href: '/services', label: 'Readings' },
+  { href: '/about', label: 'About' },
+  { href: '/journal', label: 'Journal' },
+  { href: '/reviews', label: 'Reviews' },
+  { href: '/faq', label: 'Questions' },
+  { href: '/contact', label: 'Contact' },
+];
+
+const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`);
+---
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<header id="site-nav" class="site-nav" data-scrolled="false">
+  <div class="shell shell-wide site-nav__inner">
+    <a href="/" class="site-nav__brand" aria-label={`${siteName} — home`}>
+      <Ornament motif="star" size={15} class="text-gold" />
+      <span>{siteName}</span>
+    </a>
+
+    <nav class="site-nav__links" aria-label="Primary">
+      {
+        links.map((link) => (
+          <a
+            href={link.href}
+            class="site-nav__link"
+            aria-current={isCurrent(link.href) ? 'page' : undefined}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="site-nav__actions">
+      <a href="/account" class="site-nav__link site-nav__account">Your readings</a>
+      <a href="/services" class="btn btn-ghost btn-sm">Book a reading</a>
+    </div>
+
+    <button
+      type="button"
+      class="site-nav__burger"
+      aria-label="Open menu"
+      aria-expanded="false"
+      aria-controls="site-drawer"
+      data-drawer-open
+    >
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<div class="drawer-backdrop" data-drawer-backdrop hidden></div>
+
+<aside id="site-drawer" class="drawer" aria-label="Menu" aria-hidden="true" hidden>
+  <div class="drawer__head">
+    <span class="eyebrow">Menu</span>
+    <button type="button" class="drawer__close" aria-label="Close menu" data-drawer-close>
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M5 5l10 10M15 5L5 15" stroke-linecap="round"></path>
+      </svg>
+    </button>
+  </div>
+
+  <nav class="drawer__links" aria-label="Primary, mobile">
+    {
+      links.map((link) => (
+        <a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>
+          {link.label}
+        </a>
+      ))
+    }
+    <a href="/account">Your readings</a>
+  </nav>
+
+  <div class="drawer__foot">
+    <a href="/services" class="btn btn-primary btn-block">Book a reading</a>
+  </div>
+</aside>
+
+<style>
+  .skip-link {
+    position: absolute;
+    inset-inline-start: -9999px;
+    top: 12px;
+    z-index: 100;
+    padding: 12px 20px;
+    background: var(--color-gold);
+    color: var(--color-ink-inverse);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+  }
+  .skip-link:focus {
+    inset-inline-start: 12px;
+  }
+
+  .site-nav {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    z-index: 50;
+    background: transparent;
+    border-block-end: 1px solid transparent;
+    transition:
+      background-color 300ms var(--ease-calm),
+      border-color 300ms var(--ease-calm),
+      backdrop-filter 300ms var(--ease-calm);
+  }
+  .site-nav[data-scrolled='true'] {
+    background: color-mix(in oklch, var(--color-canvas) 82%, transparent);
+    backdrop-filter: blur(12px);
+    border-block-end-color: var(--color-line);
+  }
+
+  .site-nav__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    block-size: 60px;
+  }
+  @media (min-width: 768px) {
+    .site-nav__inner {
+      block-size: 72px;
+    }
+  }
+
+  .site-nav__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: var(--text-display-sm);
+    font-weight: 300;
+    letter-spacing: 0.01em;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+
+  .site-nav__links {
+    display: none;
+    align-items: center;
+    gap: 28px;
+  }
+  @media (min-width: 1024px) {
+    .site-nav__links {
+      display: flex;
+    }
+  }
+
+  .site-nav__link {
+    position: relative;
+    padding-block: 6px;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+    white-space: nowrap;
+    transition: color 150ms var(--ease-subtle);
+  }
+  .site-nav__link:hover {
+    color: var(--color-ink);
+  }
+  .site-nav__link[aria-current='page'] {
+    color: var(--color-ink);
+  }
+  .site-nav__link[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: -6px;
+    block-size: 2px;
+    background: var(--color-gold);
+  }
+
+  .site-nav__actions {
+    display: none;
+    align-items: center;
+    gap: 20px;
+  }
+  @media (min-width: 1024px) {
+    .site-nav__actions {
+      display: flex;
+    }
+  }
+  .site-nav__account {
+    color: var(--color-ink-muted);
+  }
+
+  .site-nav__burger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    inline-size: 44px;
+    block-size: 44px;
+    padding: 0 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .site-nav__burger span {
+    display: block;
+    block-size: 1.5px;
+    background: var(--color-ink);
+    transition: transform 250ms var(--ease-smooth), opacity 200ms var(--ease-calm);
+  }
+  @media (min-width: 1024px) {
+    .site-nav__burger {
+      display: none;
+    }
+  }
+
+  .drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: oklch(0 0 0 / 0.6);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 250ms var(--ease-calm);
+  }
+  .drawer-backdrop[data-open='true'] {
+    opacity: 1;
+  }
+
+  .drawer {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-end: 0;
+    z-index: 61;
+    display: flex;
+    flex-direction: column;
+    inline-size: 80%;
+    max-inline-size: 360px;
+    padding: 20px;
+    background: var(--color-overlay);
+    border-inline-start: 1px solid var(--color-line);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(100%);
+    transition: transform 300ms var(--ease-smooth);
+  }
+  .drawer[data-open='true'] {
+    transform: translateX(0);
+  }
+
+  .drawer__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block-end: 20px;
+    border-block-end: 1px solid var(--color-line);
+  }
+  .drawer__close {
+    display: grid;
+    place-items: center;
+    inline-size: 40px;
+    block-size: 40px;
+    background: none;
+    border: none;
+    color: var(--color-ink-muted);
+    cursor: pointer;
+  }
+  .drawer__close:hover {
+    color: var(--color-ink);
+  }
+
+  .drawer__links {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding-block: 12px;
+    overflow-y: auto;
+  }
+  .drawer__links a {
+    padding: 14px 4px;
+    font-family: var(--font-display);
+    font-size: var(--text-display-sm);
+    font-weight: 400;
+    color: var(--color-ink-soft);
+    border-block-end: 1px solid color-mix(in oklch, var(--color-line) 60%, transparent);
+  }
+  .drawer__links a:hover,
+  .drawer__links a[aria-current='page'] {
+    color: var(--color-gold);
+  }
+
+  .drawer__foot {
+    padding-block-start: 16px;
+  }
+</style>
+
+<script>
+  const nav = document.getElementById('site-nav');
+  const drawer = document.getElementById('site-drawer');
+  const backdrop = document.querySelector<HTMLElement>('[data-drawer-backdrop]');
+  const openButton = document.querySelector<HTMLButtonElement>('[data-drawer-open]');
+  const closeButton = document.querySelector<HTMLButtonElement>('[data-drawer-close]');
+
+  // Settle the bar once the hero has scrolled past.
+  if (nav) {
+    const onScroll = () => nav.setAttribute('data-scrolled', String(window.scrollY > 24));
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+
+  if (drawer && backdrop && openButton && closeButton) {
+    let lastFocused: HTMLElement | null = null;
+
+    const setOpen = (open: boolean) => {
+      if (open) {
+        lastFocused = document.activeElement as HTMLElement;
+        drawer.hidden = false;
+        backdrop.hidden = false;
+        // Force a frame so the transform transition actually runs.
+        requestAnimationFrame(() => {
+          drawer.dataset.open = 'true';
+          backdrop.dataset.open = 'true';
+        });
+      } else {
+        delete drawer.dataset.open;
+        delete backdrop.dataset.open;
+        window.setTimeout(() => {
+          drawer.hidden = true;
+          backdrop.hidden = true;
+        }, 300);
+      }
+
+      drawer.setAttribute('aria-hidden', String(!open));
+      openButton.setAttribute('aria-expanded', String(open));
+      document.documentElement.style.overflow = open ? 'hidden' : '';
+
+      if (open) closeButton.focus();
+      else lastFocused?.focus();
+    };
+
+    openButton.addEventListener('click', () => setOpen(true));
+    closeButton.addEventListener('click', () => setOpen(false));
+    backdrop.addEventListener('click', () => setOpen(false));
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !drawer.hidden) setOpen(false);
+    });
+
+    // Keep focus inside the drawer while it is open.
+    drawer.addEventListener('keydown', (event) => {
+      if (event.key !== 'Tab') return;
+      const focusable = drawer.querySelectorAll<HTMLElement>('a[href], button:not([disabled])');
+      if (focusable.length === 0) return;
+      const first = focusable[0]!;
+      const last = focusable[focusable.length - 1]!;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+  }
+</script>

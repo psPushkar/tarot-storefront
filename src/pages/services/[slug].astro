@@ -1,0 +1,549 @@
+---
+import Ornament from '../../components/Ornament.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import ReviewCard from '../../components/ReviewCard.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
+import ChartWheel from '../../components/ChartWheel.astro';
+import TarotCard from '../../components/TarotCard.astro';
+import type { CardFace } from '../../components/TarotCard.astro';
+import Base from '../../layouts/Base.astro';
+import { getService } from '../../lib/api';
+import { getBrand } from '../../lib/brand';
+import { getCachedReviews, getCatalogue, sortForDisplay } from '../../lib/catalogue';
+import {
+  formatDuration,
+  formatMoney,
+  serviceTypeLabel,
+  serviceTypeNote,
+  splitMoney,
+} from '../../lib/format';
+import { breadcrumbSchema, serviceSchema } from '../../lib/schema';
+import type { ServiceDetail } from '../../lib/types';
+import { absoluteUrl } from '../../lib/config';
+
+export async function getStaticPaths() {
+  const { services } = await getCatalogue();
+
+  // Fetch each service's detail once, at build time, so add-ons and intake
+  // questions are part of the static HTML rather than a client round-trip.
+  const detailed = await Promise.all(
+    services.map(async (service) => {
+      const result = await getService(service.slug);
+      return {
+        params: { slug: service.slug },
+        props: { service: (result.ok ? result.data : service) as ServiceDetail },
+      };
+    }),
+  );
+
+  return detailed;
+}
+
+// Props are inferred from `getStaticPaths` above, so no local Props interface
+// is needed — declaring one here would only risk drifting out of sync with it.
+const { service } = Astro.props;
+const { profile, onVacation } = await getBrand();
+const { services } = await getCatalogue();
+const { reviews } = await getCachedReviews();
+
+const { symbol, amount } = splitMoney(service.price_cents, service.currency);
+const url = absoluteUrl(`/services/${service.slug}`);
+
+const related = sortForDisplay(services)
+  .filter((other) => other.slug !== service.slug)
+  .slice(0, 3);
+
+// Two reviews, chosen for length so the column does not look ragged.
+const chosenReviews = [...reviews]
+  .filter((review) => review.rating >= 4)
+  .sort((a, b) => b.comment.length - a.comment.length)
+  .slice(0, 2);
+
+const isLive = service.type === 'live_video' || service.type === 'phone';
+
+/** What the visitor must supply, derived from the service's intake type. */
+const intakeNotes: Record<string, string> = {
+  tarot: 'You will be asked for your question when you book. A few honest sentences are better than a paragraph.',
+  astrology:
+    'You will be asked for your date, time and place of birth. If you do not know the time, tell me — there is still a great deal to read without it.',
+  numerology:
+    'You will be asked for your full name and date of birth, and which name you would like me to work from.',
+  generic: 'You will be asked a short set of questions when you book, so I can prepare properly.',
+};
+
+const expectations = [
+  {
+    title: 'Before',
+    body: isLive
+      ? 'I read your question the day before and sit with it. Nothing is prepared in advance beyond that — the cards are drawn while you watch.'
+      : 'I read your question and sit with it, usually overnight. The cards are drawn in one sitting, without a second attempt at a spread I like better.',
+  },
+  {
+    title: 'During',
+    body: isLive
+      ? `We speak for ${formatDuration(service.duration_min)}. I lay the cards, describe what I see, and we talk about it. You are welcome to interrupt, disagree, and ask me to go back to a card.`
+      : 'There is no call. I work alone, and the result comes to you in full rather than in conversation.',
+  },
+  {
+    title: 'Afterwards',
+    body: 'A written record of the spread and what was said is delivered to your account, where it stays. You can return to it in six months when the situation has moved.',
+  },
+  {
+    title: 'What I will not do',
+    body: 'I will not predict a death, a diagnosis or a legal outcome, and I will not read about a third party who has not consented. If a question belongs with a doctor, a lawyer or a therapist, I will say so plainly and we will spend the time on something else.',
+  },
+];
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Readings', path: '/services' },
+  { name: service.title, path: `/services/${service.slug}` },
+];
+
+/**
+ * Each reading gets its own piece of artwork, chosen deterministically from the
+ * slug so a given service always shows the same card. Chart-based readings get
+ * a wheel instead, which quietly signals that they work from a birth chart
+ * rather than from the deck.
+ */
+const FACES: CardFace[] = ['star', 'moon', 'sun', 'world', 'wheel', 'tower'];
+const slugSum = [...service.slug].reduce((total, char) => total + char.charCodeAt(0), 0);
+const cardFace = FACES[slugSum % FACES.length] as CardFace;
+const usesChart = service.intake_type === 'astrology';
+---
+
+<Base
+  title={service.title}
+  description={`${service.description.slice(0, 150)}`.trim()}
+  schemas={[breadcrumbSchema(trail), serviceSchema(service, profile, url)]}
+>
+  <PageHeader
+    eyebrow={serviceTypeLabel(service.type)}
+    heading={service.title}
+    variant="editorial"
+    trail={trail.slice(0, 2)}
+  >
+    <div class="detail-facts">
+      <span class="price">
+        <span class="price-currency">{symbol}</span>{amount}
+      </span>
+      <span class="badge badge-gold">{formatDuration(service.duration_min)}</span>
+      <span class="badge">{serviceTypeLabel(service.type)}</span>
+    </div>
+  </PageHeader>
+
+  <div class="shell detail-rule"><Ornament motif="divider" /></div>
+
+  <section class="section-sm" aria-label={service.title}>
+    <div class="shell split-editorial split-editorial-reverse">
+      <!-- ── Narrative column ─────────────────────────────────────── -->
+      <div class="detail-body">
+        <p class="detail-lede">{service.description}</p>
+
+        {
+          serviceTypeNote(service.type) && (
+            <p class="detail-note">
+              <Ornament motif="star" size={12} />
+              {serviceTypeNote(service.type)}
+            </p>
+          )
+        }
+
+        <h2 class="detail-heading">What to expect</h2>
+        <div class="expect">
+          {
+            expectations.map((item) => (
+              <details class="expect__item">
+                <summary>
+                  <span>{item.title}</span>
+                  <Ornament motif="chevron" size={16} class="expect__chev" />
+                </summary>
+                <div class="expect__panel">
+                  <p>{item.body}</p>
+                </div>
+              </details>
+            ))
+          }
+        </div>
+
+        {
+          service.questions && service.questions.length > 0 && (
+            <>
+              <h2 class="detail-heading">What I will ask you</h2>
+              <p class="detail-sub">{intakeNotes[service.intake_type] ?? intakeNotes.generic}</p>
+              <ul class="asks">
+                {service.questions.map((question) => (
+                  <li>
+                    <Ornament motif="star" size={11} class="asks__star" />
+                    <span>{question.question}</span>
+                    {question.required && <span class="asks__req">required</span>}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )
+        }
+
+        {
+          service.addons && service.addons.length > 0 && (
+            <>
+              <h2 class="detail-heading">Things you can add</h2>
+              <ul class="addons">
+                {service.addons.map((addon) => (
+                  <li>
+                    <span>{addon.title}</span>
+                    <span class="addons__price">
+                      {formatMoney(addon.price_cents, service.currency)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p class="detail-fine">
+                Add-ons are chosen during booking and priced from the catalogue, so the total you
+                see before paying is the total you are charged.
+              </p>
+            </>
+          )
+        }
+      </div>
+
+      <!-- ── Sticky booking rail ──────────────────────────────────── -->
+      <aside class="split-aside" aria-label="Book this reading">
+        <figure class="rail-art">
+          {
+            usesChart ? (
+              <ChartWheel size={230} seed={slugSum} />
+            ) : (
+              <TarotCard face={cardFace} width={168} />
+            )
+          }
+          <figcaption>
+            {usesChart
+              ? 'Read from your birth chart alongside the cards'
+              : `Drawn in the spirit of ${cardFace === 'world' ? 'The World' : `The ${cardFace.charAt(0).toUpperCase()}${cardFace.slice(1)}`}`}
+          </figcaption>
+        </figure>
+
+        <div class="rail">
+          <p class="eyebrow">This reading</p>
+          <p class="rail__price">
+            <span class="price">
+              <span class="price-currency">{symbol}</span>{amount}
+            </span>
+          </p>
+
+          <dl class="rail__facts">
+            <div><dt>Length</dt><dd>{formatDuration(service.duration_min)}</dd></div>
+            <div><dt>Format</dt><dd>{serviceTypeLabel(service.type)}</dd></div>
+            {
+              profile.booking?.min_notice_hours ? (
+                <div>
+                  <dt>Book at least</dt>
+                  <dd>{profile.booking.min_notice_hours} hours ahead</dd>
+                </div>
+              ) : null
+            }
+            {
+              profile.languages && profile.languages.length > 0 ? (
+                <div>
+                  <dt>Languages</dt>
+                  <dd>
+                    {profile.languages
+                      .map((code) => {
+                        try {
+                          return new Intl.DisplayNames(['en'], { type: 'language' }).of(code) ?? code;
+                        } catch {
+                          return code;
+                        }
+                      })
+                      .join(', ')}
+                  </dd>
+                </div>
+              ) : null
+            }
+          </dl>
+
+          {
+            onVacation ? (
+              <>
+                <p class="rail__closed">
+                  Not currently taking bookings. {profile.vacation?.message || 'I will return shortly.'}
+                </p>
+                <a href="/contact" class="btn btn-ghost btn-block">Write to me instead</a>
+              </>
+            ) : (
+              <a href={`/book/${service.slug}`} class="btn btn-primary btn-block">
+                Choose a time
+              </a>
+            )
+          }
+
+          <p class="rail__fine">
+            {profile.policies?.cancellation ||
+              'Free to move or cancel up to 24 hours before the appointed time.'}
+          </p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  {
+    chosenReviews.length > 0 && (
+      <section class="section-sm detail-reviews" aria-labelledby="detail-reviews-heading">
+        <div class="shell">
+          <p class="eyebrow">In their words</p>
+          <h2 id="detail-reviews-heading" class="detail-heading detail-heading--flush">
+            From people who have sat with this
+          </h2>
+          <div class="detail-reviews__grid" data-reveal-group>
+            {chosenReviews.map((review) => (
+              <ReviewCard review={review} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    related.length > 0 && (
+      <section class="section-sm" aria-labelledby="related-heading">
+        <div class="shell shell-wide">
+          <p class="eyebrow">Also offered</p>
+          <h2 id="related-heading" class="detail-heading detail-heading--flush">
+            Other ways to ask
+          </h2>
+          <div class="grid-catalogue" data-reveal-group>
+            {related.map((other) => (
+              <ServiceCard service={other} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+</Base>
+
+<style>
+  .detail-facts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    margin-block-start: 28px;
+  }
+
+  .detail-rule {
+    color: var(--color-gold-dim);
+  }
+
+  .detail-lede {
+    font-size: var(--text-lead);
+    max-inline-size: 58ch;
+    color: var(--color-ink-soft);
+  }
+
+  .detail-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-block-start: 24px;
+    padding: 16px 20px;
+    background: var(--color-recessed);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+  }
+  .detail-note :global(svg) {
+    flex: none;
+    margin-block-start: 4px;
+    color: var(--color-gold-dim);
+  }
+
+  .detail-heading {
+    margin-block-start: clamp(44px, 6vw, 72px);
+    font-size: var(--text-display-sm);
+    color: var(--color-ink);
+  }
+  .detail-heading--flush {
+    margin-block: 12px clamp(28px, 4vw, 44px);
+  }
+  .detail-sub {
+    margin-block-start: 12px;
+    max-inline-size: 60ch;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+  }
+  .detail-fine {
+    margin-block-start: 16px;
+    max-inline-size: 60ch;
+    font-size: var(--text-fine);
+    color: var(--color-ink-muted);
+  }
+
+  /* ── Accordion ───────────────────────────────────────────────────── */
+  .expect {
+    margin-block-start: 20px;
+    border-block-start: 1px solid var(--color-line);
+  }
+  .expect__item {
+    border-block-end: 1px solid var(--color-line);
+  }
+  .expect__item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 20px;
+    font-size: var(--text-lead);
+    font-weight: 500;
+    color: var(--color-ink);
+    cursor: pointer;
+    list-style: none;
+  }
+  .expect__item summary::-webkit-details-marker {
+    display: none;
+  }
+  .expect__chev {
+    flex: none;
+    color: var(--color-ink-muted);
+    transition: transform 200ms var(--ease-subtle);
+  }
+  .expect__item[open] .expect__chev {
+    transform: rotate(180deg);
+  }
+  .expect__panel {
+    padding-block-end: 20px;
+    max-inline-size: 62ch;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+  }
+
+  /* ── Intake questions ────────────────────────────────────────────── */
+  .asks {
+    margin-block-start: 20px;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 12px;
+  }
+  .asks li {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+  }
+  .asks__star {
+    flex: none;
+    color: var(--color-gold-dim);
+  }
+  .asks__req {
+    font-family: var(--font-eyebrow);
+    font-size: var(--text-fine);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  /* ── Add-ons ─────────────────────────────────────────────────────── */
+  .addons {
+    margin-block-start: 20px;
+    padding: 0;
+    list-style: none;
+  }
+  .addons li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 20px;
+    padding-block: 14px;
+    border-block-end: 1px solid var(--color-line);
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+  }
+  .addons li:first-child {
+    border-block-start: 1px solid var(--color-line);
+  }
+  .addons__price {
+    color: var(--color-gold);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* ── Booking rail ────────────────────────────────────────────────── */
+  .rail-art {
+    display: grid;
+    justify-items: center;
+    gap: 16px;
+    margin: 0 0 28px;
+    padding-block: clamp(16px, 3vw, 28px);
+  }
+  .rail-art figcaption {
+    max-inline-size: 26ch;
+    text-align: center;
+    font-family: var(--font-eyebrow);
+    font-size: var(--text-fine);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .rail {
+    background: var(--color-raised);
+    border: 1px solid var(--color-line-gold);
+    border-radius: var(--radius-lg);
+    padding: var(--card-padding);
+  }
+  .rail__price {
+    margin-block-start: 12px;
+  }
+  .rail__facts {
+    display: grid;
+    gap: 0;
+    margin-block: 24px;
+  }
+  .rail__facts > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 11px;
+    border-block-end: 1px solid var(--color-line);
+    font-size: var(--text-copy-sm);
+  }
+  .rail__facts dt {
+    color: var(--color-ink-muted);
+  }
+  .rail__facts dd {
+    margin: 0;
+    text-align: end;
+    color: var(--color-ink);
+  }
+  .rail__closed {
+    margin-block-end: 16px;
+    font-size: var(--text-copy-sm);
+    color: var(--color-warning);
+  }
+  .rail__fine {
+    margin-block-start: 16px;
+    font-size: var(--text-fine);
+    color: var(--color-ink-muted);
+  }
+
+  /* ── Reviews ─────────────────────────────────────────────────────── */
+  .detail-reviews {
+    border-block-start: 1px solid var(--color-line);
+  }
+  .detail-reviews__grid {
+    display: grid;
+    gap: 24px;
+  }
+  @media (min-width: 768px) {
+    .detail-reviews__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

@@ -1,0 +1,78 @@
+<!--
+THESIS: Wake replaces decorative tarot with an active night sea; the default mystical theme is refused in favour of consequence, motion, and disappearance. lang=en It treats attention as pressure rather than ornament or persuasion here.
+OWN-WORLD: The ground is #01040A, deep teal currents sit underneath, #38BDF8 marks disturbance, and #67E8F9 records afterglow; components are dark bodies that kindle only when touched.
+STORY: Visitors meet Aurelia as a steady reader for crossroads, disturb the field, compare five fixed readings, then move into booking without theatrics or invented promises.
+FIRST VIEWPORT: A full WebGL plankton field fills the screen. The name and one clear sentence sit left of centre, legible over a dark scrim, with the primary Book a reading action low in the text block.
+FORM: Booking is a restrained four-step path: choose service, choose date, choose time, give contact, question, and birth details; it looks ready while deliberately not submitting.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Tarot for people at a crossroads">
+  <title>Wake · Aurelia Sable</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="home">
+  <div class="entry-seq" aria-hidden="true"><span></span><span></span><span></span></div>
+  <canvas id="plankton-field" aria-hidden="true"></canvas>
+  <div class="grain" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header" data-scroll-nav>
+    <a class="brand wake-link" href="index.html">Aurelia Sable</a>
+    <nav class="wake-nav" aria-label="Primary">
+      <a class="wake-link" href="index.html" aria-current="page">Home</a>
+      <a class="wake-link" href="readings.html">Readings</a>
+      <a class="wake-link" href="about.html">About</a>
+      <a class="wake-link" href="book.html">Book</a>
+      <a class="wake-link" href="contact.html">Contact</a>
+    </nav>
+  </header>
+  <div class="demo-badge">Demo — Design 04: Wake</div>
+  <main id="main">
+    <section class="hero viewport" data-parallax>
+      <div class="hero-copy">
+        <h1 aria-label="Aurelia Sable"><span class="word" aria-hidden="true">Aurelia</span> <span class="word" aria-hidden="true">Sable</span></h1>
+        <p class="lede">Tarot for people at a crossroads</p>
+        <p>I read for people who already know something has to change and want a clearer look at it. Seventeen years, mostly by referral.</p>
+        <div class="hero-actions">
+          <a class="button magnetic" href="book.html">Book a reading</a>
+          <a class="wake-link" href="readings.html">See all readings</a>
+        </div>
+      </div>
+      <div class="current-map" aria-hidden="true">
+        <svg viewBox="0 0 420 420"><path d="M25 260 C100 190 150 330 230 235 S330 110 395 160"/><path d="M45 120 C140 70 190 180 285 110 S365 70 410 95"/><path d="M80 360 C140 310 220 390 340 285"/></svg>
+      </div>
+    </section>
+    <section class="section intro-drift">
+      <div class="measure">
+        <h2>The shape of the work</h2>
+        <p>I do not predict. A reading is a structured hour of attention on a question you have been circling alone, and the cards are the structure. Most people arrive knowing the answer and needing to hear it said out loud by someone with no stake in it.</p>
+      </div>
+    </section>
+    <section class="section service-stream" aria-labelledby="home-readings">
+      <div class="section-head"><h2 id="home-readings">Readings that hold one real question at a time</h2><a class="wake-link" href="readings.html">All five readings</a></div>
+      <div class="stream-list">
+        <article class="service-row"><a class="service-row__main wake-link" href="book.html#book-threshold"><span>The Threshold Reading</span><small>45 minutes · Live video</small></a><p>One question, held properly. For a decision you have been carrying too long.</p><strong>$29 / ₹2,400</strong></article>
+        <article class="service-row"><a class="service-row__main wake-link" href="book.html#book-full-life"><span>The Full Life Reading</span><small>90 minutes · Live video</small></a><p>The long look. Work, love, family, money — and how they are pulling against each other.</p><strong>$58 / ₹4,800</strong></article>
+        <article class="service-row"><a class="service-row__main wake-link" href="book.html#book-year-ahead"><span>The Year Ahead</span><small>75 minutes · Live video</small></a><p>Twelve cards, twelve months, and the two that actually matter.</p><strong>$47 / ₹3,900</strong></article>
+      </div>
+    </section>
+    <section class="section quotes" aria-labelledby="voices">
+      <h2 id="voices">What remains after the session</h2>
+      <div class="quote-flow">
+        <figure class="quote-ripple"><blockquote>I booked expecting to be told what I wanted to hear. I was not, and it was the most useful hour of that month.</blockquote><figcaption>R. · The Threshold Reading</figcaption></figure>
+        <figure class="quote-ripple"><blockquote>She said one sentence about my father that I have thought about every week since. I still do not know how.</blockquote><figcaption>Meera K. · The Full Life Reading</figcaption></figure>
+        <figure class="quote-ripple"><blockquote>Straightforward, unhurried, and completely without the theatrics I was dreading.</blockquote><figcaption>James T. · The Year Ahead</figcaption></figure>
+        <figure class="quote-ripple"><blockquote>The written one suited me better than a call ever would have. I have reread it three times.</blockquote><figcaption>Anon. · The Written Reading</figcaption></figure>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div><p class="footer-name">Aurelia Sable</p><p>Bangalore, India · reads worldwide</p></div><div><a class="wake-link" href="mailto:hello@aureliasable.example">hello@aureliasable.example</a><a class="wake-link" href="contact.html">Policies</a></div></footer>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+﻿Purpose: persuade independent international consultation practitioners that a custom booking site can feel as singular as their practice while still taking bookings cleanly.
+Tone: restrained fine-press editorial on cream paper, crossed with the living instability of suminagashi ink on water; quiet labels, generous leading, low weight, no occult costume.
+Constraints: plain HTML/CSS/JS, no image files or external libraries, five complete pages, exact fixed content, AA contrast, reduced-motion static marbling, decorative tray that never traps focus.
+Differentiation: the site’s signature is not a background pattern but a working marbling tray; pointer and touch strokes permanently comb preallocated ink rings as a real stylus would. Reading choices become distinct marbled emblems rather than interchangeable cards. Navigation, forms, policies and booking controls remain plain, trustworthy and usable under the visual world.

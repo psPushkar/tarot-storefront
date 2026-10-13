@@ -1,0 +1,166 @@
+---
+/**
+ * Ornament — the Gilt Veil motif set.
+ *
+ * Every decorative mark on the site comes from here, so the visual language
+ * stays consistent and there is exactly one place to change it. All motifs are
+ * pure inline SVG using `currentColor`, so they inherit whatever text colour
+ * the surrounding element sets.
+ */
+
+export type Motif = 'star' | 'divider' | 'flourish' | 'vesica' | 'check' | 'chevron' | 'arrow';
+
+interface Props {
+  motif: Motif;
+  size?: number;
+  class?: string;
+  /** Decorative marks are hidden from assistive technology by default. */
+  label?: string;
+}
+
+const { motif, size = 16, class: className = '', label } = Astro.props;
+
+const a11y = label
+  ? ({ role: 'img' as const, 'aria-label': label } as const)
+  : ({ 'aria-hidden': 'true' as const, focusable: 'false' as const } as const);
+---
+
+{
+  motif === 'star' && (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      class={className}
+      {...a11y}
+    >
+      <path
+        d="M12 0L13.4 9.2L20.5 3.5L14.8 10.6L24 12L14.8 13.4L20.5 20.5L13.4 14.8L12 24L10.6 14.8L3.5 20.5L9.2 13.4L0 12L9.2 10.6L3.5 3.5L10.6 9.2L12 0Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+{
+  motif === 'divider' && (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 200 16"
+      fill="none"
+      class={className}
+      style="width:100%;max-width:280px;height:16px;margin-inline:auto"
+      {...a11y}
+    >
+      <line x1="0" y1="8" x2="88" y2="8" stroke="currentColor" stroke-width="0.5" opacity="0.3" />
+      <path
+        d="M100 2L101.2 7L105 4.5L102 7.5L107 8L102 8.5L105 11.5L101.2 9L100 14L98.8 9L95 11.5L98 8.5L93 8L98 7.5L95 4.5L98.8 7L100 2Z"
+        fill="currentColor"
+        opacity="0.4"
+      />
+      <line x1="112" y1="8" x2="200" y2="8" stroke="currentColor" stroke-width="0.5" opacity="0.3" />
+    </svg>
+  )
+}
+
+{
+  motif === 'flourish' && (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 40 40"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="0.75"
+      opacity="0.3"
+      class={className}
+      {...a11y}
+    >
+      <path d="M1 38L1 8Q1 1 8 1L38 1" fill="none" />
+      <circle cx="1" cy="38" r="1.5" fill="currentColor" opacity="0.5" stroke="none" />
+      <circle cx="38" cy="1" r="1.5" fill="currentColor" opacity="0.5" stroke="none" />
+    </svg>
+  )
+}
+
+{
+  motif === 'vesica' && (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 120 200"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="0.5"
+      opacity="0.1"
+      class={className}
+      {...a11y}
+    >
+      <ellipse cx="30" cy="100" rx="80" ry="120" fill="none" />
+      <ellipse cx="90" cy="100" rx="80" ry="120" fill="none" />
+    </svg>
+  )
+}
+
+{
+  motif === 'check' && (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.75"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class={className}
+      {...a11y}
+    >
+      <path d="M2.5 8.5L6 12L13.5 4" />
+    </svg>
+  )
+}
+
+{
+  motif === 'chevron' && (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class={className}
+      {...a11y}
+    >
+      <path d="M4 6L8 10L12 6" />
+    </svg>
+  )
+}
+
+{
+  motif === 'arrow' && (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.25"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class={className}
+      {...a11y}
+    >
+      <path d="M2.5 8H13" />
+      <path d="M9 4L13 8L9 12" />
+    </svg>
+  )
+}

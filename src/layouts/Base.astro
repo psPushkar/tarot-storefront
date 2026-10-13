@@ -1,0 +1,125 @@
+---
+/**
+ * The page shell.
+ *
+ * Owns the document, the navigation, the footer, and the two behaviours that
+ * every page shares: scroll reveal and the no-JS escape hatch. Pages supply
+ * their own <head> facts through props; nothing else touches <head>.
+ */
+
+import '../styles/global.css';
+
+import Footer from '../components/Footer.astro';
+import Nav from '../components/Nav.astro';
+import Seo from '../components/Seo.astro';
+import { getBrand } from '../lib/brand';
+import { getCatalogue } from '../lib/catalogue';
+import { absoluteUrl, uploadUrl } from '../lib/config';
+import { websiteSchema } from '../lib/schema';
+
+interface Props {
+  title: string;
+  description: string;
+  ogType?: 'website' | 'article';
+  noindex?: boolean;
+  publishedAt?: string;
+  schemas?: (Record<string, unknown> | null | undefined)[];
+  /** Extra class on <main>, for pages that need a distinct background. */
+  mainClass?: string;
+}
+
+const {
+  title,
+  description,
+  ogType = 'website',
+  noindex = false,
+  publishedAt,
+  schemas = [],
+  mainClass = '',
+} = Astro.props;
+
+const { profile } = await getBrand();
+const { services } = await getCatalogue();
+
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+// Prefer the practitioner's own photo; fall back to the generated gilt card so
+// a shared link is never a blank rectangle.
+const photoUrl = uploadUrl(profile.photo_key) ?? absoluteUrl('/og.png');
+---
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#0C0B0F" />
+    <meta name="color-scheme" content="dark" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="alternate" type="application/rss+xml" title={`${profile.site_name} — Journal`} href="/journal/rss.xml" />
+
+    <Seo
+      title={title}
+      description={description}
+      path={path}
+      siteName={profile.site_name}
+      ogType={ogType}
+      image={photoUrl}
+      noindex={noindex}
+      publishedAt={publishedAt}
+      schemas={[websiteSchema(profile), ...schemas]}
+    />
+
+    <script is:inline>
+      // Flip off the no-JS guard before first paint so revealed elements do not
+      // flash into view. Everything degrades to fully visible without this.
+      document.documentElement.classList.remove('no-js');
+    </script>
+  </head>
+
+  <body>
+    <Nav siteName={profile.site_name} path={path} />
+
+    <main id="main" class={mainClass}>
+      <slot />
+    </main>
+
+    <Footer profile={profile} services={services} />
+
+    <script>
+      // Scroll reveal. Elements opt in with `data-reveal`; siblings inside a
+      // `data-reveal-group` stagger, capped at six so a long grid never leaves
+      // the visitor waiting on an animation queue.
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
+
+      if (targets.length > 0 && 'IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              const element = entry.target as HTMLElement;
+              const group = element.closest('[data-reveal-group]');
+              let delay = 0;
+
+              if (group && !reduceMotion) {
+                const siblings = Array.from(group.querySelectorAll('[data-reveal]'));
+                delay = Math.min(siblings.indexOf(element), 5) * 80;
+              }
+
+              window.setTimeout(() => element.classList.add('is-revealed'), delay);
+              observer.unobserve(element);
+            }
+          },
+          { threshold: 0.15, rootMargin: '0px 0px -40px 0px' },
+        );
+
+        targets.forEach((target) => observer.observe(target));
+      } else {
+        targets.forEach((target) => target.classList.add('is-revealed'));
+      }
+    </script>
+  </body>
+</html>

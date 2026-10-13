@@ -1,0 +1,142 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import BookingDetail from '../../components/islands/BookingDetail.tsx';
+---
+
+<Base title="Booking details" description="View your booking." noindex={true}>
+  <PageHeader variant="compact" heading="Booking details" />
+  <section class="shell section-sm">
+    <BookingDetail client:only="preact" />
+  </section>
+</Base>
+
+<style is:global>
+  .bdetail {
+    min-block-size: 300px;
+  }
+  .bdetail__header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-block-end: 24px;
+  }
+  .bdetail__title {
+    font-family: var(--font-display);
+    font-size: var(--text-display-md);
+    color: var(--color-ink);
+  }
+  .bdetail__facts {
+    margin-block-end: 24px;
+  }
+  .bdetail__join {
+    margin-block-end: 24px;
+  }
+  .bdetail__manage-link {
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-muted);
+    margin-block-end: 32px;
+  }
+  .bdetail__reading {
+    margin-block-end: 32px;
+  }
+  .bdetail__section-heading {
+    font-family: var(--font-display);
+    font-size: var(--text-display-sm);
+    color: var(--color-ink);
+    margin-block-end: 16px;
+  }
+  .bdetail__cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-block-end: 16px;
+  }
+  .bdetail__card-pill {
+    display: inline-flex;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: var(--text-fine);
+    font-weight: 500;
+    color: var(--color-gold);
+    border: 1px solid var(--color-line-gold);
+  }
+  .bdetail__recording {
+    margin-block-start: 24px;
+  }
+  .bdetail__recording-label {
+    font-family: var(--font-eyebrow);
+    font-size: var(--text-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-gold-dim);
+  }
+  .bdetail__messages {
+    margin-block-end: 32px;
+  }
+  .bdetail__msg-empty {
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-muted);
+  }
+  .bdetail__msg-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-block-end: 20px;
+  }
+  .bdetail__msg {
+    max-inline-size: 80%;
+    padding: 12px 16px;
+    border-radius: var(--radius-lg);
+    font-size: var(--text-copy-sm);
+  }
+  .bdetail__msg--reader {
+    align-self: flex-start;
+    background: var(--color-raised);
+    border: 1px solid var(--color-line);
+  }
+  .bdetail__msg--client {
+    align-self: flex-end;
+    background: var(--color-overlay);
+    border: 1px solid var(--color-line-strong);
+  }
+  .bdetail__msg-body {
+    color: var(--color-ink-soft);
+  }
+  .bdetail__msg-time {
+    display: block;
+    margin-block-start: 4px;
+    font-size: var(--text-fine);
+    color: var(--color-ink-muted);
+  }
+  .bdetail__composer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-block-start: 16px;
+  }
+  .bdetail__composer-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .bdetail__empty {
+    text-align: center;
+    padding-block: 48px;
+  }
+  .bdetail__empty-heading {
+    font-family: var(--font-display);
+    font-size: var(--text-display-sm);
+    color: var(--color-ink);
+    margin-block-end: 12px;
+  }
+  .bdetail__empty-body {
+    font-size: var(--text-copy);
+    color: var(--color-ink-soft);
+    max-inline-size: 46ch;
+    margin-inline: auto;
+    margin-block-end: 24px;
+  }
+</style>

@@ -1,0 +1,191 @@
+---
+/**
+ * Photo — the only way a photograph enters this site.
+ *
+ * Dropping a stock photograph onto a near-black page is what makes a dark site
+ * look cheap: the image punches a bright rectangle out of the design. So every
+ * photo here is *treated* — cropped to a fixed ratio, dimmed, warmed toward the
+ * gilt accent, vignetted and hairlined — so it reads as part of the palette
+ * rather than as something pasted in.
+ *
+ * Images are processed by Astro's asset pipeline, so each one ships as a
+ * responsive, lazily-loaded AVIF/WebP set with intrinsic dimensions (no layout
+ * shift) rather than as the 1800px original.
+ */
+
+import { Image } from 'astro:assets';
+import type { Photo } from '../lib/photos';
+
+type Ratio = 'portrait' | 'landscape' | 'square' | 'wide' | 'tall';
+
+interface Props {
+  photo: Photo;
+  ratio?: Ratio;
+  /** `gilt` warms and dims; `wash` is heavier, for text laid over the top. */
+  treatment?: 'gilt' | 'wash' | 'plain';
+  /** Largest rendered width, used to size the generated srcset. */
+  width?: number;
+  sizes?: string;
+  /** Above-the-fold images should be eager so they are not lazily deferred. */
+  eager?: boolean;
+  /** Purely decorative: hides it from assistive tech and drops the alt text. */
+  decorative?: boolean;
+  rounded?: boolean;
+  /**
+   * Fill the positioned ancestor instead of holding its own aspect ratio, for
+   * using a photograph as a section backdrop. Pair with `treatment="wash"`.
+   */
+  fill?: boolean;
+  class?: string;
+}
+
+const {
+  photo,
+  ratio = 'landscape',
+  treatment = 'gilt',
+  width = 900,
+  sizes = '(min-width: 1024px) 50vw, 100vw',
+  eager = false,
+  decorative = false,
+  rounded = true,
+  fill = false,
+  class: className = '',
+} = Astro.props;
+
+const RATIOS: Record<Ratio, string> = {
+  portrait: '4 / 5',
+  landscape: '3 / 2',
+  square: '1 / 1',
+  wide: '16 / 9',
+  tall: '2 / 3',
+};
+
+// Only ask for widths we could actually use, so the build does not spend time
+// generating variants larger than the slot they render into. Backdrops are
+// blurred and overscaled in CSS, so they are capped hard and encoded at low
+// quality — detail there is bytes the visitor can never perceive.
+const ceiling = fill ? 640 : width * 2;
+const widths = [480, 768, 1200, 1600].filter((candidate) => candidate <= ceiling);
+if (widths.length === 0) widths.push(Math.min(width, ceiling));
+---
+
+<figure
+  class:list={['photo', `photo--${treatment}`, { 'photo--rounded': rounded && !fill, 'photo--fill': fill }, className]}
+  style={fill ? undefined : `--ratio:${RATIOS[ratio]}`}
+  aria-hidden={fill ? 'true' : undefined}
+>
+  <Image
+    src={photo.src}
+    alt={decorative ? '' : photo.alt}
+    widths={widths}
+    sizes={sizes}
+    quality={fill ? 50 : 78}
+    loading={eager ? 'eager' : 'lazy'}
+    decoding={eager ? 'sync' : 'async'}
+    fetchpriority={eager ? 'high' : 'auto'}
+    aria-hidden={decorative ? 'true' : undefined}
+    class="photo__img"
+  />
+
+  <span class="photo__tint" aria-hidden="true"></span>
+  <span class="photo__vignette" aria-hidden="true"></span>
+
+  <slot />
+</figure>
+
+<style>
+  .photo {
+    position: relative;
+    display: block;
+    margin: 0;
+    overflow: hidden;
+    aspect-ratio: var(--ratio);
+    background: var(--color-recessed);
+    isolation: isolate;
+  }
+
+  .photo--rounded {
+    border-radius: var(--radius-lg);
+  }
+
+  /* Backdrop mode: fills the positioned ancestor and never intercepts input.
+     Backdrops are blurred and slightly overscaled — it reads better behind
+     text, and a blurred source compresses to a fraction of a sharp one. */
+  .photo--fill {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
+    border-radius: 0;
+    background: transparent;
+    pointer-events: none;
+  }
+  .photo--fill .photo__img {
+    transform: scale(1.06);
+    filter: brightness(0.42) contrast(1.02) saturate(0.5) sepia(0.22) blur(3px);
+  }
+  .photo--fill .photo__vignette {
+    box-shadow:
+      inset 0 90px 110px -60px oklch(0.05 0.008 285 / 0.98),
+      inset 0 -90px 110px -60px oklch(0.05 0.008 285 / 0.98);
+  }
+
+  .photo__img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Warm the image toward the gilt accent and pull its brightness down so it
+     sits at the same visual weight as a raised surface. */
+  .photo--gilt .photo__img {
+    filter: brightness(0.82) contrast(1.06) saturate(0.72) sepia(0.14);
+  }
+  .photo--wash .photo__img {
+    filter: brightness(0.5) contrast(1.05) saturate(0.55) sepia(0.2);
+  }
+
+  .photo__tint {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    background: linear-gradient(
+      160deg,
+      oklch(0.74 0.1 80 / 0.16) 0%,
+      transparent 45%,
+      oklch(0.08 0.01 285 / 0.4) 100%
+    );
+  }
+  .photo--plain .photo__tint {
+    display: none;
+  }
+
+  .photo__vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow:
+      inset 0 0 0 1px oklch(0.59 0.09 78 / 0.28),
+      inset 0 -70px 90px -40px oklch(0.05 0.008 285 / 0.9),
+      inset 0 40px 70px -50px oklch(0.05 0.008 285 / 0.7);
+  }
+  .photo--rounded .photo__vignette {
+    border-radius: var(--radius-lg);
+  }
+
+  /* A caption passed through the slot sits over the foot of the image. */
+  .photo :global(figcaption) {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    padding: 20px;
+    font-family: var(--font-eyebrow);
+    font-size: var(--text-fine);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-gold-pale);
+    text-shadow: 0 1px 6px oklch(0 0 0 / 0.8);
+  }
+</style>

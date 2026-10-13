@@ -1,0 +1,203 @@
+---
+import Ornament from './Ornament.astro';
+import type { Profile, Service } from '../lib/types';
+
+interface Props {
+  profile: Profile;
+  services: Service[];
+}
+
+const { profile, services } = Astro.props;
+const year = new Date().getFullYear();
+
+const socials = Object.entries(profile.socials ?? {})
+  .filter(([, url]) => typeof url === 'string' && url.startsWith('http'))
+  .map(([network, url]) => ({
+    network: network.charAt(0).toUpperCase() + network.slice(1),
+    url: url as string,
+  }));
+---
+
+<footer class="site-foot">
+  <div class="shell shell-wide">
+    <div class="site-foot__grid">
+      <div class="site-foot__brand">
+        <a href="/" class="site-foot__mark">
+          <Ornament motif="star" size={14} class="text-gold" />
+          <span>{profile.site_name}</span>
+        </a>
+        <p class="site-foot__tagline">{profile.tagline}</p>
+        {
+          profile.languages && profile.languages.length > 0 && (
+            <p class="site-foot__meta">
+              Readings in {new Intl.ListFormat('en', { type: 'conjunction' }).format(
+                profile.languages.map((code) => {
+                  try {
+                    return new Intl.DisplayNames(['en'], { type: 'language' }).of(code) ?? code;
+                  } catch {
+                    return code;
+                  }
+                }),
+              )}
+            </p>
+          )
+        }
+      </div>
+
+      <nav class="site-foot__col" aria-label="Readings">
+        <h2 class="eyebrow">Readings</h2>
+        <ul>
+          {
+            services.slice(0, 5).map((service) => (
+              <li>
+                <a href={`/services/${service.slug}`}>{service.title}</a>
+              </li>
+            ))
+          }
+          <li><a href="/services">All readings</a></li>
+        </ul>
+      </nav>
+
+      <nav class="site-foot__col" aria-label="The practice">
+        <h2 class="eyebrow">The practice</h2>
+        <ul>
+          <li><a href="/about">About Aurelia</a></li>
+          <li><a href="/journal">Journal</a></li>
+          <li><a href="/reviews">Reviews</a></li>
+          <li><a href="/faq">Questions</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </nav>
+
+      <nav class="site-foot__col" aria-label="Your account and terms">
+        <h2 class="eyebrow">Your bookings</h2>
+        <ul>
+          <li><a href="/account">Sign in</a></li>
+          <li><a href="/booking/manage">Find a booking</a></li>
+          <li><a href="/legal">Terms and policies</a></li>
+          {
+            socials.map((social) => (
+              <li>
+                <a href={social.url} rel="me noopener noreferrer" target="_blank">
+                  {social.network}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+
+    <div class="site-foot__bar">
+      <p>© {year} {profile.site_name}</p>
+      <Ornament motif="star" size={11} class="site-foot__star" />
+      {
+        profile.policies?.disclaimer ? (
+          <p class="site-foot__disclaimer">{profile.policies.disclaimer}</p>
+        ) : (
+          <p class="site-foot__disclaimer">
+            Readings are offered for reflection and personal insight.
+          </p>
+        )
+      }
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-foot {
+    margin-block-start: auto;
+    padding-block-start: var(--section-y);
+    padding-block-end: 32px;
+    background: var(--color-recessed);
+    border-block-start: 1px solid var(--color-line);
+  }
+
+  .site-foot__grid {
+    display: grid;
+    gap: 40px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 640px) {
+    .site-foot__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1024px) {
+    .site-foot__grid {
+      grid-template-columns: 1.6fr 1fr 1fr 1fr;
+      gap: 48px;
+    }
+  }
+
+  .site-foot__mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-family: var(--font-display);
+    font-size: var(--text-display-sm);
+    font-weight: 300;
+    color: var(--color-ink);
+  }
+  .site-foot__tagline {
+    margin-block-start: 12px;
+    max-inline-size: 34ch;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--text-lead);
+    color: var(--color-ink-soft);
+  }
+  .site-foot__meta {
+    margin-block-start: 16px;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-muted);
+  }
+
+  .site-foot__col ul {
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .site-foot__col a {
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+    transition: color 150ms var(--ease-subtle);
+  }
+  .site-foot__col a:hover {
+    color: var(--color-ink);
+  }
+
+  .site-foot__bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-block-start: 64px;
+    padding-block-start: 24px;
+    border-block-start: 1px solid var(--color-line);
+    text-align: center;
+    font-size: var(--text-fine);
+    color: var(--color-ink-muted);
+  }
+  .site-foot__star {
+    color: var(--color-gold-dim);
+    opacity: 0.3;
+  }
+  .site-foot__disclaimer {
+    max-inline-size: 62ch;
+  }
+  @media (min-width: 768px) {
+    .site-foot__bar {
+      flex-direction: row;
+      justify-content: space-between;
+      text-align: start;
+    }
+    .site-foot__disclaimer {
+      max-inline-size: 44ch;
+      text-align: end;
+    }
+  }
+</style>

@@ -1,0 +1,157 @@
+---
+/**
+ * PageHeader — the hero for interior pages.
+ *
+ * Each page in the site is meant to feel distinct rather than recoloured, so
+ * this deliberately offers three quite different arrangements rather than one
+ * header with a swappable title:
+ *
+ *   `ceremonial` — centred, symmetrical, ornamented. Title-page energy.
+ *   `editorial`  — left-aligned with a heavy display line and a lede beside it.
+ *   `compact`    — a single rule and a modest title, for utility pages.
+ */
+
+import Ornament from './Ornament.astro';
+
+interface Props {
+  eyebrow?: string;
+  heading: string;
+  lede?: string;
+  variant?: 'ceremonial' | 'editorial' | 'compact';
+  /** Breadcrumb trail, rendered above the heading on editorial headers. */
+  trail?: { name: string; path: string }[];
+  glow?: boolean;
+}
+
+const { eyebrow, heading, lede, variant = 'editorial', trail = [], glow = true } = Astro.props;
+---
+
+<header class:list={['page-head', `page-head--${variant}`]}>
+  {glow && <div class="page-head__glow hero-glow" aria-hidden="true"></div>}
+
+  <div class="shell page-head__inner">
+    {
+      trail.length > 0 && (
+        <nav class="page-head__trail" aria-label="Breadcrumb">
+          <ol>
+            {trail.map((crumb, index) => (
+              <li>
+                {index > 0 && <span aria-hidden="true">/</span>}
+                <a href={crumb.path}>{crumb.name}</a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )
+    }
+
+    {eyebrow && <p class="eyebrow page-head__eyebrow">{eyebrow}</p>}
+
+    <h1 class="page-head__title">{heading}</h1>
+
+    {variant === 'ceremonial' && <Ornament motif="divider" class="page-head__divider" />}
+
+    {lede && <p class="page-head__lede">{lede}</p>}
+
+    <slot />
+  </div>
+</header>
+
+<style>
+  .page-head {
+    position: relative;
+    padding-block-start: clamp(120px, 14vh, 180px);
+    padding-block-end: clamp(40px, 6vw, 72px);
+    overflow: hidden;
+  }
+  .page-head__glow {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    block-size: 420px;
+    pointer-events: none;
+  }
+  .page-head__inner {
+    position: relative;
+  }
+
+  .page-head__trail ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 24px;
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-fine);
+    color: var(--color-ink-muted);
+  }
+  .page-head__trail li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .page-head__trail span {
+    color: var(--color-ink-faint);
+  }
+  .page-head__trail a:hover {
+    color: var(--color-gold);
+  }
+
+  .page-head__eyebrow {
+    margin-block-end: 18px;
+  }
+
+  .page-head__title {
+    font-size: var(--text-display-lg);
+    color: var(--color-ink);
+  }
+
+  .page-head__lede {
+    margin-block-start: 24px;
+    max-inline-size: 55ch;
+    font-size: var(--text-lead);
+    color: var(--color-ink-soft);
+  }
+
+  /* Ceremonial: centred, ornamented, narrow. */
+  .page-head--ceremonial .page-head__inner {
+    max-inline-size: 700px;
+    margin-inline: auto;
+    text-align: center;
+  }
+  .page-head--ceremonial .page-head__lede {
+    margin-inline: auto;
+  }
+  .page-head--ceremonial .page-head__divider {
+    display: block;
+    margin-block: 28px;
+    color: var(--color-gold-dim);
+  }
+
+  /* Editorial: the display line sits hard left with a generous hang. */
+  .page-head--editorial .page-head__title {
+    max-inline-size: 16ch;
+  }
+
+  /* Compact: utility pages get a rule instead of a hero. */
+  .page-head--compact {
+    padding-block-start: clamp(104px, 12vh, 140px);
+    padding-block-end: clamp(28px, 4vw, 44px);
+  }
+  .page-head--compact .page-head__title {
+    font-size: var(--text-display-md);
+  }
+  .page-head--compact .page-head__inner::after {
+    content: '';
+    display: block;
+    block-size: 1px;
+    margin-block-start: clamp(28px, 4vw, 44px);
+    background: linear-gradient(
+      to right,
+      var(--color-line-gold) 0%,
+      var(--color-line) 40%,
+      transparent 100%
+    );
+  }
+</style>

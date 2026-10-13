@@ -1,0 +1,193 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { getBrand } from '../lib/brand';
+import { photoCredits } from '../lib/photos';
+import { breadcrumbSchema } from '../lib/schema';
+
+const { profile } = await getBrand();
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Legal', path: '/legal' },
+];
+
+const cancellation = profile.policies?.cancellation || '';
+const refund = profile.policies?.refund || '';
+const disclaimer = profile.policies?.disclaimer || '';
+const currentYear = new Date().getFullYear();
+
+interface Section {
+  id: string;
+  title: string;
+  body: string;
+}
+
+const sections: Section[] = [
+  {
+    id: 'booking-and-payment',
+    title: '1. Booking and payment',
+    body: 'When you book a reading, payment is taken at the time of booking through Stripe. Your card details are handled entirely by Stripe and never touch this site. I receive confirmation that payment was made, nothing more. All prices are listed in the currency shown on the services page. If you are paying from another currency, your bank or card provider will handle the conversion at their prevailing rate.',
+  },
+  {
+    id: 'cancellation',
+    title: '2. Cancellation',
+    body: cancellation || 'You may cancel a confirmed booking with at least forty-eight hours\u2019 notice for a full refund. Cancellations made within forty-eight hours of the session are non-refundable. If you need to cancel, please write as soon as possible so the slot can be offered to someone else.',
+  },
+  {
+    id: 'rescheduling',
+    title: '3. Rescheduling',
+    body: 'You may reschedule a session once, subject to availability, provided you give at least forty-eight hours\u2019 notice. Further rescheduling requests will be treated as new bookings. If I need to reschedule on my side, I will offer you the next available slot or a full refund\u2014whichever you prefer.',
+  },
+  {
+    id: 'refunds',
+    title: '4. Refunds',
+    body: refund || 'Refunds for eligible cancellations are processed within five to ten working days and returned to the original payment method. If you believe you were charged in error or did not receive the service you booked, please write to me directly and I will resolve it promptly.',
+  },
+  {
+    id: 'what-a-reading-is',
+    title: '5. What a reading is and is not',
+    body: disclaimer || 'A tarot reading is a reflective and interpretive conversation. It is not therapy, medical advice, legal counsel or financial guidance. I do not diagnose conditions, predict specific events, or claim access to information that is not available through careful attention to symbolic language. If a question belongs with a qualified professional, I will say so directly. You remain responsible for your own decisions at all times.',
+  },
+  {
+    id: 'your-privacy',
+    title: '6. Your privacy',
+    body: 'I take your privacy seriously. Personal data you provide\u2014your name, email address and the content of your reading\u2014is held only to deliver the service you booked. I do not sell, share or transfer your data to third parties except where necessary to process payment through Stripe or deliver communications through the booking platform.',
+  },
+  {
+    id: 'your-data',
+    title: '7. Your data and your rights',
+    body: 'You may request a copy of the personal data I hold about you, or ask me to delete it entirely, at any time. To do so, write to me using the contact page. I will action your request within thirty days. If you delete your account, booking records required for financial reporting may be retained in anonymised form.',
+  },
+  {
+    id: 'contact',
+    title: '8. Contact',
+    body: 'If you have questions about any of these terms, or if something has gone wrong and you would like it put right, please write to me through the contact page. I handle these matters personally.',
+  },
+];
+---
+
+<Base
+  title="Legal"
+  description="Booking terms, cancellation and refund policies, privacy practices, and data rights for clients of Aurelia Sable's tarot practice."
+  schemas={[breadcrumbSchema(trail)]}
+>
+  <PageHeader variant="compact" heading="Terms and policies" trail={trail} />
+
+  <section class="section shell" aria-label="Terms and policies">
+    <div class="legal-layout">
+      <nav class="legal-toc" aria-label="Table of contents">
+        <ol>
+          {sections.map((s) => (
+            <li><a href={`#${s.id}`}>{s.title.replace(/^\d+\.\s*/, '')}</a></li>
+          ))}
+          <li><a href="#credits">Image credits</a></li>
+        </ol>
+      </nav>
+
+      <div class="legal-content" data-reveal>
+        {sections.map((s) => (
+          <section id={s.id} class="legal-section">
+            <h2>{s.title}</h2>
+            <p>{s.body}</p>
+          </section>
+        ))}
+
+        <section id="credits" class="legal-section">
+          <h2>{sections.length + 1}. Image credits</h2>
+          <p>
+            The photographs on this site are used under the Unsplash Licence, which does not
+            require attribution. It is offered here anyway, because the work is theirs.
+          </p>
+          <ul class="legal-credits">
+            {photoCredits.map((photo) => (
+              <li>
+                <a href={photo.creditUrl} rel="noopener noreferrer" target="_blank">
+                  {photo.credit}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <p>
+            All other artwork on this site — the cards, the chart wheels and every ornament — is
+            drawn in code and original to it.
+          </p>
+        </section>
+
+        <p class="legal-reviewed">Last reviewed {currentYear}.</p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .legal-credits {
+    margin-block: 12px 16px;
+    padding-inline-start: 1.1em;
+    display: grid;
+    gap: 6px;
+  }
+  .legal-credits li::marker { color: var(--color-gold-dim); }
+  .legal-credits a { color: var(--color-gold); text-decoration: underline; text-underline-offset: 4px; }
+.legal-layout {
+    display: grid;
+    gap: clamp(32px, 5vw, 72px);
+  }
+  @media (min-width: 1024px) {
+    .legal-layout {
+      grid-template-columns: 200px 1fr;
+      align-items: start;
+    }
+  }
+  .legal-toc {
+    position: sticky;
+    top: 108px;
+  }
+  .legal-toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-muted);
+    counter-reset: toc;
+  }
+  .legal-toc li {
+    counter-increment: toc;
+  }
+  .legal-toc li::before {
+    content: counter(toc) '. ';
+    color: var(--color-ink-faint);
+  }
+  .legal-toc a:hover {
+    color: var(--color-gold);
+  }
+  @media (max-width: 1023px) {
+    .legal-toc {
+      position: static;
+    }
+  }
+  .legal-content {
+    max-inline-size: 65ch;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+    line-height: 1.7;
+  }
+  .legal-section {
+    margin-block-end: clamp(32px, 4vw, 48px);
+  }
+  .legal-section h2 {
+    font-family: var(--font-body);
+    font-size: var(--text-copy);
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-block-end: 12px;
+  }
+  .legal-reviewed {
+    margin-block-start: var(--section-y-sm);
+    font-size: var(--text-fine);
+    color: var(--color-ink-faint);
+  }
+</style>

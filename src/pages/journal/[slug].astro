@@ -1,0 +1,210 @@
+---
+import Base from '../../layouts/Base.astro';
+import Ornament from '../../components/Ornament.astro';
+import Photo from '../../components/Photo.astro';
+import { getBrand } from '../../lib/brand';
+import { articles } from '../../lib/content';
+import { articlePhoto } from '../../lib/articleImages';
+import { formatDate } from '../../lib/format';
+import { articleSchema, breadcrumbSchema } from '../../lib/schema';
+import type { Block } from '../../lib/content';
+
+export function getStaticPaths() {
+  return articles.map((article) => ({
+    params: { slug: article.slug },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { profile } = await getBrand();
+
+const bodyText = article.body
+  .map((b: Block) => {
+    if (b.kind === 'list') return b.items.join(' ');
+    return b.text;
+  })
+  .join(' ');
+const wordCount = bodyText.split(/\s+/).filter(Boolean).length;
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Journal', path: '/journal' },
+  { name: article.title, path: `/journal/${article.slug}` },
+];
+
+const sortedArticles = [...articles].sort(
+  (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
+);
+const currentIndex = sortedArticles.findIndex((a) => a.slug === article.slug);
+const prevArticle = currentIndex < sortedArticles.length - 1 ? sortedArticles[currentIndex + 1] : null;
+const nextArticle = currentIndex > 0 ? sortedArticles[currentIndex - 1] : null;
+
+const photo = articlePhoto(article.slug);
+---
+
+<Base
+  title={article.title}
+  description={article.dek}
+  ogType="article"
+  publishedAt={article.publishedAt}
+  schemas={[articleSchema(article, profile, wordCount), breadcrumbSchema(trail)]}
+>
+  <article class="article-page">
+    <header class="article-header shell shell-narrow" data-reveal>
+      <p class="eyebrow">{article.category}</p>
+      <h1 class="article-title">{article.title}</h1>
+      <p class="article-standfirst">{article.dek}</p>
+      <p class="article-meta">
+        <time datetime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
+        <span aria-hidden="true">&middot;</span>
+        {article.readingMinutes} minutes
+      </p>
+    </header>
+
+    {
+      photo && (
+        <div class="article-figure shell" data-reveal>
+          <Photo
+            photo={photo}
+            ratio="wide"
+            width={1100}
+            sizes="(min-width: 1240px) 1100px, 100vw"
+            eager={true}
+          />
+        </div>
+      )
+    }
+
+    <div class="article-body shell shell-narrow prose" data-reveal>
+      {article.body.map((block: Block) => {
+        if (block.kind === 'h2') return <h2>{block.text}</h2>;
+        if (block.kind === 'quote') return <blockquote class="pull-quote">{block.text}</blockquote>;
+        if (block.kind === 'list') return <ul>{block.items.map((item) => <li>{item}</li>)}</ul>;
+        return <p>{block.text}</p>;
+      })}
+    </div>
+
+    <footer class="article-footer shell shell-narrow" data-reveal>
+      <Ornament motif="divider" class="article-divider" />
+
+      <nav class="article-nav" aria-label="More articles">
+        {prevArticle ? (
+          <a href={`/journal/${prevArticle.slug}`} class="article-nav__link article-nav__link--prev">
+            <span class="article-nav__label">Previous</span>
+            <span class="article-nav__title">{prevArticle.title}</span>
+          </a>
+        ) : <div />}
+        {nextArticle ? (
+          <a href={`/journal/${nextArticle.slug}`} class="article-nav__link article-nav__link--next">
+            <span class="article-nav__label">Next</span>
+            <span class="article-nav__title">{nextArticle.title}</span>
+          </a>
+        ) : <div />}
+      </nav>
+
+      <div class="article-cta">
+        <p class="article-cta__text">If something here struck a chord, you're welcome to bring it into a reading.</p>
+        <a href="/services" class="btn btn-ghost">View readings</a>
+      </div>
+    </footer>
+  </article>
+</Base>
+
+<style>
+  .article-page {
+    padding-block-start: clamp(120px, 14vh, 180px);
+    padding-block-end: var(--section-y);
+  }
+  .article-header {
+    max-inline-size: 68ch;
+    margin-inline: auto;
+  }
+  .article-title {
+    font-size: var(--text-display-lg);
+    color: var(--color-ink);
+    margin-block-start: 18px;
+  }
+  .article-standfirst {
+    margin-block-start: 24px;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--text-lead);
+    line-height: 1.5;
+    color: var(--color-ink-soft);
+    max-inline-size: 55ch;
+  }
+  .article-meta {
+    margin-block-start: 20px;
+    font-size: var(--text-fine);
+    color: var(--color-ink-muted);
+    display: flex;
+    gap: 8px;
+  }
+  .article-figure {
+    margin-block-start: clamp(32px, 5vw, 56px);
+    max-inline-size: 1100px;
+  }
+  .article-body {
+    margin-block-start: var(--section-y-sm);
+    max-inline-size: 68ch;
+    margin-inline: auto;
+    line-height: 1.75;
+  }
+  .article-footer {
+    margin-block-start: var(--section-y);
+    max-inline-size: 68ch;
+    margin-inline: auto;
+  }
+  .article-divider {
+    display: block;
+    color: var(--color-gold-dim);
+    margin-block-end: 40px;
+  }
+  .article-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-block-end: var(--section-y-sm);
+  }
+  .article-nav__link {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    transition: border-color 200ms var(--ease-subtle);
+  }
+  .article-nav__link:hover {
+    border-color: var(--color-line-gold);
+  }
+  .article-nav__link--next {
+    text-align: end;
+  }
+  .article-nav__label {
+    font-size: var(--text-fine);
+    color: var(--color-ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .article-nav__title {
+    font-family: var(--font-display);
+    font-size: var(--text-copy);
+    color: var(--color-ink);
+  }
+  .article-cta {
+    text-align: center;
+    padding: var(--card-padding);
+    background: var(--color-raised);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+  }
+  .article-cta__text {
+    font-size: var(--text-copy);
+    color: var(--color-ink-soft);
+    margin-block-end: 20px;
+    max-inline-size: 46ch;
+    margin-inline: auto;
+  }
+</style>

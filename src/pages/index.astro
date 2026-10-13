@@ -1,0 +1,684 @@
+---
+import CardFan from '../components/CardFan.astro';
+import Ornament from '../components/Ornament.astro';
+import Photo from '../components/Photo.astro';
+import { photos } from '../lib/photos';
+import ServiceCard from '../components/ServiceCard.astro';
+import StateBlock from '../components/StateBlock.astro';
+import Base from '../layouts/Base.astro';
+import { getBrand } from '../lib/brand';
+import { averageRating, getCachedReviews, getCatalogue, sortForDisplay } from '../lib/catalogue';
+import { uploadUrl } from '../lib/config';
+import { articles, homeIntro, howItWorks, valueProps } from '../lib/content';
+import { formatDate, formatDateShort } from '../lib/format';
+import { professionalServiceSchema } from '../lib/schema';
+
+const { profile, onVacation } = await getBrand();
+const catalogue = await getCatalogue();
+const { reviews, ok: reviewsOk } = await getCachedReviews();
+
+const services = sortForDisplay(catalogue.services);
+const featured = services.slice(0, 3);
+const photoUrl = uploadUrl(profile.photo_key);
+
+const rating = averageRating(reviews);
+// The single review to feature: the longest five-star one reads best at size.
+const spotlight = [...reviews]
+  .filter((review) => review.rating >= 5)
+  .sort((a, b) => b.comment.length - a.comment.length)[0];
+
+const latestArticles = [...articles]
+  .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+  .slice(0, 2);
+
+const returnDate = profile.vacation?.until
+  ? formatDate(`${profile.vacation.until}T12:00:00Z`, profile.timezone)
+  : '';
+---
+
+<Base
+  title={`${profile.site_name} — ${profile.tagline}`}
+  description="Tarot readings with Aurelia Sable, nineteen years in practice in Lisbon. Live sessions by video or telephone, written readings, and short recorded readings. Book a time and bring one real question."
+  schemas={[professionalServiceSchema(profile, reviews, photoUrl)]}
+>
+  <!-- ─── Hero: the only full-viewport section on the site ─────────────── -->
+  <section class="hero" aria-label="Introduction">
+    <div class="hero__glow hero-glow" aria-hidden="true"></div>
+    <div class="hero__vignette page-vignette" aria-hidden="true"></div>
+
+    <div class="shell shell-wide hero__inner">
+      <div class="hero__copy">
+        <Ornament motif="star" size={20} class="hero__star" />
+        <p class="eyebrow hero__eyebrow">{homeIntro.eyebrow}</p>
+        <h1 class="hero__title">{homeIntro.heading}</h1>
+        <p class="hero__lede">{homeIntro.body}</p>
+
+        <div class="hero__actions">
+          <a href="/services" class="btn btn-primary btn-lg">Book a reading</a>
+          <a href="/about" class="btn btn-ghost btn-lg">About the practice</a>
+        </div>
+
+        {
+          rating !== null && reviews.length >= 3 && (
+            <p class="hero__proof">
+              <span class="hero__stars" aria-hidden="true">
+                {Array.from({ length: 5 }).map(() => <Ornament motif="star" size={10} />)}
+              </span>
+              {rating.toFixed(1)} from {reviews.length} published reviews
+            </p>
+          )
+        }
+      </div>
+
+      <CardFan class="hero__fan" />
+    </div>
+
+    <div class="hero__scroll" aria-hidden="true">
+      <Ornament motif="chevron" size={20} />
+    </div>
+  </section>
+
+  {
+    onVacation && (
+      <div class="shell shell-narrow vacation">
+        <div class="notice notice-warning">
+          <Ornament motif="star" size={14} />
+          <div>
+            <strong>Away for a time.</strong>{' '}
+            {profile.vacation?.message ||
+              `I am taking a short pause from readings${returnDate ? ` and will return on ${returnDate}` : ''}. Existing bookings are unaffected.`}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  <!-- ─── What this is, in three plain claims ──────────────────────────── -->
+  <section class="section-sm claims" aria-label="What a reading is">
+    <div class="shell">
+      <ul class="claims__list" data-reveal-group>
+        {
+          valueProps.map((prop) => (
+            <li data-reveal>
+              <h2 class="claims__title">{prop.title}</h2>
+              <p class="claims__body">{prop.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ─── A first look at the catalogue ────────────────────────────────── -->
+  <section class="section" aria-labelledby="offerings-heading">
+    <div class="shell shell-wide">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Offerings</p>
+          <h2 id="offerings-heading" class="section-head__title">Three ways to begin</h2>
+        </div>
+        <a href="/services" class="link-onward">
+          All readings
+          <Ornament motif="arrow" size={14} />
+        </a>
+      </div>
+
+      {
+        featured.length > 0 ? (
+          <div class="grid-catalogue" data-reveal-group>
+            {featured.map((service, index) => (
+              <ServiceCard service={service} featured={index === 0} />
+            ))}
+          </div>
+        ) : (
+          <StateBlock
+            tone="inline"
+            heading={catalogue.ok ? 'The offerings are being prepared.' : "This section couldn't be loaded right now."}
+            body={
+              catalogue.ok
+                ? 'New sessions will be listed here soon. In the meantime, you are welcome to read about the practice or write to me directly.'
+                : 'Please refresh the page to try again. Everything else on the site is working normally.'
+            }
+            actions={[{ label: 'About the practice', href: '/about' }, { label: 'Get in touch', href: '/contact' }]}
+          />
+        )
+      }
+    </div>
+  </section>
+
+  <!-- ─── The arc of a booking, as a numbered sequence ─────────────────── -->
+  <section class="section arc" aria-labelledby="arc-heading">
+    <div class="accent-glow arc__glow" aria-hidden="true"></div>
+    <div class="shell">
+      <p class="eyebrow">How it goes</p>
+      <h2 id="arc-heading" class="arc__heading">From a question to a record you keep</h2>
+
+      <ol class="arc__list" data-reveal-group>
+        {
+          howItWorks.map((step) => (
+            <li data-reveal>
+              <span class="arc__index" aria-hidden="true">
+                {String(step.index).padStart(2, '0')}
+              </span>
+              <div>
+                <h3 class="arc__title">{step.title}</h3>
+                <p class="arc__body">{step.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- ─── About teaser: editorial split with the vesica behind ─────────── -->
+  <section class="section about-teaser" aria-labelledby="about-heading">
+    <div class="shell split-editorial split-editorial-reverse">
+      <div>
+        <p class="eyebrow">The practitioner</p>
+        <h2 id="about-heading" class="about-teaser__title">{profile.display_name || profile.site_name}</h2>
+        <p class="about-teaser__body">
+          I came to tarot sideways, through a doctorate on medieval iconography that I never
+          finished — on how a single image can hold a whole argument. A friend put a deck in my
+          hands to make a point about symbols. She was right.
+        </p>
+        <a href="/about" class="link-onward about-teaser__link">
+          More about my practice
+          <Ornament motif="arrow" size={14} />
+        </a>
+      </div>
+
+      <div class="about-teaser__aside split-aside">
+        <Ornament motif="vesica" class="about-teaser__vesica" />
+        <blockquote class="pull-quote about-teaser__quote">
+          What the cards do, reliably and sometimes uncomfortably, is externalise. They put the
+          shape of a situation on the table where you can walk around it.
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── One review, given room ───────────────────────────────────────── -->
+  {
+    reviewsOk && spotlight && (
+      <section class="section-sm spotlight" aria-labelledby="spotlight-heading">
+        <div class="shell">
+          <h2 id="spotlight-heading" class="visually-hidden">
+            What people say
+          </h2>
+          <figure class="spotlight__figure" data-reveal>
+            <Ornament motif="flourish" size={40} class="spotlight__corner spotlight__corner--tl" />
+            <Ornament motif="flourish" size={40} class="spotlight__corner spotlight__corner--br" />
+            <blockquote class="spotlight__quote">{spotlight.comment}</blockquote>
+            <figcaption class="spotlight__cite">
+              <Ornament motif="divider" class="spotlight__rule" />
+              <a href="/reviews" class="link-onward">
+                Read more reviews
+                <Ornament motif="arrow" size={14} />
+              </a>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ─── Journal teaser ───────────────────────────────────────────────── -->
+  <section class="section" aria-labelledby="journal-heading">
+    <div class="shell">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">From the journal</p>
+          <h2 id="journal-heading" class="section-head__title">Written, not posted</h2>
+        </div>
+        <a href="/journal" class="link-onward">
+          Read the journal
+          <Ornament motif="arrow" size={14} />
+        </a>
+      </div>
+
+      <div class="journal-teaser" data-reveal-group>
+        {
+          latestArticles.map((article) => (
+            <article class="card card-interactive journal-teaser__card" data-reveal>
+              <p class="eyebrow">{article.category}</p>
+              <h3 class="journal-teaser__title">
+                <a href={`/journal/${article.slug}`}>{article.title}</a>
+              </h3>
+              <p class="journal-teaser__excerpt clamp-3">{article.excerpt}</p>
+              <p class="journal-teaser__meta">
+                <time datetime={article.publishedAt}>{formatDateShort(`${article.publishedAt}T12:00:00Z`)}</time>
+                <span aria-hidden="true">·</span>
+                <span>{article.readingMinutes} minutes</span>
+              </p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Closing invitation ───────────────────────────────────────────── -->
+  <section class="section-sm closing" aria-label="Book a reading">
+    <Photo
+      photo={photos.nightSky}
+      treatment="wash"
+      fill={true}
+      width={1600}
+      sizes="100vw"
+      decorative={true}
+      rounded={false}
+    />
+    <div class="shell shell-narrow closing__inner">
+      <Ornament motif="star" size={18} class="closing__star" />
+      <h2 class="closing__title">Bring one real question.</h2>
+      <p class="closing__body">
+        That is all a reading needs. If you are not sure what yours is yet, that is a common and
+        perfectly good place to start.
+      </p>
+      <div class="closing__actions">
+        <a href="/services" class="btn btn-primary">Choose a reading</a>
+        <a href="/faq" class="btn btn-ghost">Read the questions first</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .visually-hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ── Hero ────────────────────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-block-size: 100svh;
+    padding-block: clamp(104px, 16vh, 150px) clamp(56px, 9vh, 100px);
+    overflow: hidden;
+  }
+  .hero__glow,
+  .hero__vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .hero__inner {
+    position: relative;
+    display: grid;
+    gap: clamp(28px, 5vw, 56px);
+    align-items: center;
+    text-align: center;
+    justify-items: center;
+  }
+  @media (min-width: 1000px) {
+    .hero__inner {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+      text-align: start;
+      justify-items: stretch;
+      gap: clamp(40px, 5vw, 88px);
+    }
+  }
+  .hero__copy {
+    max-inline-size: 620px;
+  }
+  .hero__fan {
+    order: -1;
+  }
+  @media (min-width: 1000px) {
+    .hero__fan {
+      order: 0;
+    }
+  }
+  .hero__star {
+    display: block;
+    margin-inline: auto;
+    color: var(--color-gold-dim);
+    opacity: 0.5;
+  }
+  @media (min-width: 1000px) {
+    .hero__star {
+      margin-inline: 0;
+    }
+  }
+  .hero__eyebrow {
+    margin-block-start: 26px;
+  }
+  .hero__title {
+    margin-block-start: 20px;
+    font-size: var(--text-display-xl);
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--color-ink);
+  }
+  @media (min-width: 1000px) {
+    .hero__title {
+      max-inline-size: 13ch;
+    }
+  }
+  .hero__lede {
+    margin: 28px auto 0;
+    max-inline-size: 52ch;
+    font-size: var(--text-lead);
+    color: var(--color-ink-soft);
+  }
+  @media (min-width: 1000px) {
+    .hero__lede {
+      margin-inline: 0;
+      max-inline-size: 46ch;
+    }
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    margin-block-start: 40px;
+  }
+  @media (min-width: 1000px) {
+    .hero__actions {
+      justify-content: flex-start;
+    }
+  }
+  .hero__proof {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-block-start: 32px;
+    font-size: var(--text-fine);
+    color: var(--color-ink-muted);
+  }
+  .hero__stars {
+    display: inline-flex;
+    gap: 3px;
+    color: var(--color-gold);
+  }
+  .hero__scroll {
+    position: absolute;
+    inset-block-end: 28px;
+    inset-inline: 0;
+    display: none;
+    place-items: center;
+    color: var(--color-ink-muted);
+    opacity: 0.4;
+    animation: nudge 2s var(--ease-calm) infinite;
+  }
+  @media (min-height: 720px) {
+    .hero__scroll {
+      display: grid;
+    }
+  }
+  @keyframes nudge {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(5px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero__scroll {
+      animation: none;
+    }
+  }
+
+  .vacation {
+    padding-block-end: 24px;
+  }
+
+  /* ── Section heads ───────────────────────────────────────────────── */
+  .section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-block-end: clamp(32px, 4vw, 56px);
+  }
+  .section-head__title {
+    margin-block-start: 12px;
+    font-size: var(--text-display-md);
+    color: var(--color-ink);
+  }
+
+  /* ── Claims ──────────────────────────────────────────────────────── */
+  .claims {
+    border-block: 1px solid var(--color-line);
+    background: var(--color-recessed);
+  }
+  .claims__list {
+    display: grid;
+    gap: clamp(28px, 4vw, 56px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (min-width: 900px) {
+    .claims__list {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .claims__list > li + li {
+      padding-inline-start: clamp(28px, 4vw, 56px);
+      border-inline-start: 1px solid var(--color-line);
+    }
+  }
+  .claims__title {
+    font-family: var(--font-display);
+    font-size: var(--text-display-sm);
+    color: var(--color-gold);
+  }
+  .claims__body {
+    margin-block-start: 10px;
+    max-inline-size: 40ch;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+  }
+
+  /* ── The arc ─────────────────────────────────────────────────────── */
+  .arc {
+    position: relative;
+    overflow: hidden;
+  }
+  .arc__glow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .arc__heading {
+    position: relative;
+    margin-block-start: 14px;
+    max-inline-size: 18ch;
+    font-size: var(--text-display-md);
+    color: var(--color-ink);
+  }
+  .arc__list {
+    position: relative;
+    display: grid;
+    gap: 0;
+    margin: clamp(40px, 5vw, 64px) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .arc__list > li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(20px, 4vw, 48px);
+    padding-block: clamp(24px, 3vw, 36px);
+    border-block-start: 1px solid var(--color-line);
+  }
+  .arc__list > li:last-child {
+    border-block-end: 1px solid var(--color-line);
+  }
+  .arc__index {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1.2rem + 2vw, 3rem);
+    font-weight: 300;
+    line-height: 1;
+    color: var(--color-gold-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .arc__title {
+    font-size: var(--text-display-sm);
+    color: var(--color-ink);
+  }
+  .arc__body {
+    margin-block-start: 8px;
+    max-inline-size: 62ch;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+  }
+
+  /* ── About teaser ────────────────────────────────────────────────── */
+  .about-teaser__title {
+    margin-block-start: 14px;
+    font-size: var(--text-display-md);
+    color: var(--color-ink);
+  }
+  .about-teaser__body {
+    margin-block-start: 20px;
+    max-inline-size: 46ch;
+    color: var(--color-ink-soft);
+  }
+  .about-teaser__link {
+    margin-block-start: 24px;
+  }
+  .about-teaser__aside {
+    position: relative;
+    display: grid;
+    place-items: center;
+    padding-block: 20px;
+  }
+  .about-teaser__vesica {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    inline-size: 240px;
+    transform: translate(-50%, -50%);
+    color: var(--color-gold);
+    pointer-events: none;
+  }
+  .about-teaser__quote {
+    position: relative;
+    max-inline-size: 26ch;
+  }
+
+  /* ── Spotlight review ────────────────────────────────────────────── */
+  .spotlight__figure {
+    position: relative;
+    max-inline-size: 640px;
+    margin-inline: auto;
+    padding: clamp(28px, 5vw, 56px) clamp(20px, 4vw, 48px);
+    text-align: center;
+  }
+  .spotlight__corner {
+    position: absolute;
+    color: var(--color-gold-dim);
+  }
+  .spotlight__corner--tl {
+    inset-block-start: 0;
+    inset-inline-start: 0;
+  }
+  .spotlight__corner--br {
+    inset-block-end: 0;
+    inset-inline-end: 0;
+    transform: rotate(180deg);
+  }
+  .spotlight__quote {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-quote);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.3;
+    color: var(--color-ink);
+  }
+  .spotlight__cite {
+    display: grid;
+    justify-items: center;
+    gap: 20px;
+    margin-block-start: 32px;
+  }
+  .spotlight__rule {
+    color: var(--color-gold-dim);
+  }
+
+  /* ── Journal teaser ──────────────────────────────────────────────── */
+  .journal-teaser {
+    display: grid;
+    gap: 24px;
+  }
+  @media (min-width: 768px) {
+    .journal-teaser {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .journal-teaser__card {
+    gap: 12px;
+  }
+  .journal-teaser__title {
+    font-size: var(--text-display-sm);
+    color: var(--color-ink);
+  }
+  .journal-teaser__title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+  .journal-teaser__excerpt {
+    flex: 1;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+  }
+  .journal-teaser__meta {
+    display: flex;
+    gap: 8px;
+    padding-block-start: 16px;
+    border-block-start: 1px solid var(--color-line);
+    font-size: var(--text-fine);
+    color: var(--color-ink-muted);
+  }
+
+  /* ── Closing ─────────────────────────────────────────────────────── */
+  .closing {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-block-start: 1px solid var(--color-line);
+  }
+  .closing__inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+  .closing__star {
+    display: block;
+    margin-inline: auto;
+    color: var(--color-gold-dim);
+  }
+  .closing__title {
+    margin-block-start: 20px;
+    font-size: var(--text-display-md);
+    color: var(--color-ink);
+  }
+  .closing__body {
+    margin: 16px auto 0;
+    max-inline-size: 46ch;
+    color: var(--color-ink-soft);
+  }
+  .closing__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    margin-block-start: 32px;
+  }
+</style>

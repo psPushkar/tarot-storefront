@@ -1,0 +1,79 @@
+---
+/**
+ * Every <head> tag that matters for search and sharing.
+ *
+ * One component owns titles, descriptions, canonicals, robots, OpenGraph,
+ * Twitter cards and JSON-LD, so no page can quietly ship without them.
+ */
+
+import { absoluteUrl, config } from '../lib/config';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Path only, e.g. `/services/full-life-reading`. Canonical is derived. */
+  path: string;
+  siteName: string;
+  /** `article` for journal entries, `website` for everything else. */
+  ogType?: 'website' | 'article';
+  image?: string | null;
+  /** Set on pages that must never be indexed — the account area, checkout returns. */
+  noindex?: boolean;
+  publishedAt?: string;
+  /** Serialised verbatim into <script type="application/ld+json">. */
+  schemas?: (Record<string, unknown> | null | undefined)[];
+}
+
+const {
+  title,
+  description,
+  path,
+  siteName,
+  ogType = 'website',
+  image = null,
+  noindex = false,
+  publishedAt,
+  schemas = [],
+} = Astro.props;
+
+const canonical = absoluteUrl(path);
+const fullTitle = path === '/' ? title : `${title} — ${siteName}`;
+const validSchemas = schemas.filter(
+  (schema): schema is Record<string, unknown> => schema !== null && schema !== undefined,
+);
+
+// A site that has not been given its real public URL should not be telling
+// search engines it lives at example.com.
+const placeholderSite = config.siteUrl.includes('example.com');
+const robots = noindex || placeholderSite ? 'noindex, nofollow' : 'index, follow, max-image-preview:large';
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<meta name="robots" content={robots} />
+
+<meta property="og:type" content={ogType} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:locale" content="en_GB" />
+{image && <meta property="og:image" content={image} />}
+{image && <meta property="og:image:alt" content={`${siteName} — ${title}`} />}
+{publishedAt && <meta property="article:published_time" content={publishedAt} />}
+
+<meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{image && <meta name="twitter:image" content={image} />}
+
+{
+  validSchemas.map((schema) => (
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify(schema).replace(/</g, '\\u003c')}
+    />
+  ))
+}

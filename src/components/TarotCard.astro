@@ -1,0 +1,305 @@
+---
+/**
+ * TarotCard — the site's signature piece of artwork.
+ *
+ * Every card is drawn, not photographed: pure SVG in the Gilt Veil palette,
+ * so it is weightless, scales to any size, needs no licence, and can never
+ * clash with the rest of the page. The faces are *geometric interpretations*
+ * of the major arcana rather than reproductions of any published deck.
+ *
+ * Proportions follow a real tarot card (70×120mm), so a fan of these reads
+ * immediately as cards rather than as rectangles.
+ */
+
+export type CardFace = 'back' | 'blank' | 'star' | 'moon' | 'tower' | 'sun' | 'wheel' | 'world';
+
+interface Props {
+  face?: CardFace;
+  /** Rendered width in px. Height follows the card ratio. */
+  width?: number;
+  class?: string;
+  /** Decorative by default; pass a label to expose it to assistive tech. */
+  label?: string;
+  style?: string;
+}
+
+const { face = 'back', width = 220, class: className = '', label, style } = Astro.props;
+
+const W = 300;
+const H = 514;
+const height = Math.round((width * H) / W);
+
+// Pattern and gradient ids must be unique per instance or a second card on the
+// same page will inherit the first one's fills.
+const uid = `tc${Math.random().toString(36).slice(2, 9)}`;
+
+const a11y = label
+  ? ({ role: 'img' as const, 'aria-label': label } as const)
+  : ({ 'aria-hidden': 'true' as const } as const);
+
+const TITLES: Record<CardFace, string> = {
+  back: '',
+  blank: '',
+  star: 'The Star',
+  moon: 'The Moon',
+  tower: 'The Tower',
+  sun: 'The Sun',
+  wheel: 'The Wheel',
+  world: 'The World',
+};
+
+const title = TITLES[face];
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox={`0 0 ${W} ${H}`}
+  width={width}
+  height={height}
+  class:list={['tarot-card', className]}
+  style={style}
+  {...a11y}
+>
+  <defs>
+    <linearGradient id={`${uid}-stock`} x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#1b1922" />
+      <stop offset="55%" stop-color="#121118" />
+      <stop offset="100%" stop-color="#0a0910" />
+    </linearGradient>
+
+    <radialGradient id={`${uid}-sheen`} cx="0.5" cy="0.1" r="0.85">
+      <stop offset="0%" stop-color="#C9A55C" stop-opacity="0.16" />
+      <stop offset="60%" stop-color="#C9A55C" stop-opacity="0.03" />
+      <stop offset="100%" stop-color="#C9A55C" stop-opacity="0" />
+    </radialGradient>
+
+    <pattern id={`${uid}-guilloche`} x="0" y="0" width="44" height="44" patternUnits="userSpaceOnUse">
+      <g stroke="#C9A55C" stroke-width="0.4" fill="none" opacity="0.24">
+        <line x1="0" y1="0" x2="44" y2="44" />
+        <line x1="44" y1="0" x2="0" y2="44" />
+        <circle cx="22" cy="22" r="14" />
+        <circle cx="22" cy="22" r="7" />
+        <line x1="22" y1="0" x2="22" y2="44" />
+        <line x1="0" y1="22" x2="44" y2="22" />
+      </g>
+    </pattern>
+
+    <clipPath id={`${uid}-clip`}>
+      <rect x="0" y="0" width={W} height={H} rx="14" />
+    </clipPath>
+  </defs>
+
+  <!-- Card stock -->
+  <g clip-path={`url(#${uid}-clip)`}>
+    <rect width={W} height={H} fill={`url(#${uid}-stock)`} />
+    <rect width={W} height={H} fill={`url(#${uid}-sheen)`} />
+
+    {face === 'back' && <rect x="20" y="20" width={W - 40} height={H - 40} fill={`url(#${uid}-guilloche)`} />}
+  </g>
+
+  <!-- Gilt double rule -->
+  <rect x="0.75" y="0.75" width={W - 1.5} height={H - 1.5} rx="13.5" fill="none" stroke="#9A7D42" stroke-width="1.5" opacity="0.85" />
+  <rect x="10" y="10" width={W - 20} height={H - 20} rx="8" fill="none" stroke="#C9A55C" stroke-width="0.6" opacity="0.45" />
+
+  <!-- Corner pips -->
+  {
+    [
+      [20, 20],
+      [W - 20, 20],
+      [20, H - 20],
+      [W - 20, H - 20],
+    ].map(([cx, cy]) => <circle cx={cx} cy={cy} r="1.6" fill="#C9A55C" opacity="0.5" />)
+  }
+
+  <!-- ─── Faces ─────────────────────────────────────────────────────── -->
+
+  {
+    face === 'back' && (
+      <g transform={`translate(${W / 2} ${H / 2})`}>
+        <circle r="62" fill="#0c0b0f" opacity="0.75" />
+        <circle r="62" fill="none" stroke="#9A7D42" stroke-width="0.7" opacity="0.7" />
+        <circle r="50" fill="none" stroke="#C9A55C" stroke-width="0.4" opacity="0.35" />
+        <path
+          d="M0 -44L2.6 -16.9L15.6 -37.1L5.2 -12.8L27.5 -22L7.4 -6.6L44 0L7.4 6.6L27.5 22L5.2 12.8L15.6 37.1L2.6 16.9L0 44L-2.6 16.9L-15.6 37.1L-5.2 12.8L-27.5 22L-7.4 6.6L-44 0L-7.4 -6.6L-27.5 -22L-5.2 -12.8L-15.6 -37.1L-2.6 -16.9L0 -44Z"
+          fill="#C9A55C"
+          opacity="0.9"
+        />
+      </g>
+    )
+  }
+
+  {
+    face === 'star' && (
+      <g stroke="#C9A55C" fill="none" stroke-linecap="round">
+        <path
+          d="M150 96L154 152L180 118L162 160L212 138L170 172L226 178L170 184L212 218L162 196L180 238L154 204L150 260L146 204L120 238L138 196L88 218L130 184L74 178L130 172L88 138L138 160L120 118L146 152L150 96Z"
+          fill="#C9A55C"
+          stroke="none"
+          opacity="0.88"
+        />
+        {[
+          [96, 300, 9],
+          [204, 300, 9],
+          [150, 330, 12],
+          [110, 358, 7],
+          [190, 358, 7],
+        ].map(([cx, cy, r]) => (
+          <circle cx={cx} cy={cy} r={r} stroke-width="0.7" opacity="0.5" />
+        ))}
+        <g stroke-width="0.8" opacity="0.55">
+          <path d="M56 400q23.5 -12 47 0t47 0t47 0t47 0" />
+          <path d="M56 420q23.5 -12 47 0t47 0t47 0t47 0" />
+          <path d="M56 440q23.5 -12 47 0t47 0t47 0t47 0" />
+        </g>
+      </g>
+    )
+  }
+
+  {
+    face === 'moon' && (
+      <g stroke="#C9A55C" fill="none">
+        <path d="M186 96a76 76 0 1 0 0 124a94 94 0 0 1 0 -124Z" fill="#C9A55C" opacity="0.85" stroke="none" />
+        <circle cx="150" cy="158" r="88" stroke-width="0.5" opacity="0.3" />
+        {/* Two towers, geometric */}
+        <g stroke-width="1" opacity="0.6">
+          <path d="M78 440V300l16-22 16 22v140Z" />
+          <path d="M190 440V300l16-22 16 22v140Z" />
+          <path d="M86 340h16M198 340h16" />
+        </g>
+        <g stroke-width="0.7" opacity="0.4">
+          <path d="M150 300v140" stroke-dasharray="4 7" />
+        </g>
+      </g>
+    )
+  }
+
+  {
+    face === 'tower' && (
+      <g stroke="#C9A55C" fill="none">
+        <path d="M104 440V214l46-46 46 46v226Z" stroke-width="1.1" opacity="0.75" />
+        <path d="M104 268h92M104 336h92" stroke-width="0.6" opacity="0.45" />
+        <path d="M150 168l-58 34h116Z" stroke-width="0.9" opacity="0.6" />
+        {/* The strike */}
+        <path d="M168 84l-40 76h30l-26 66l58-84h-30Z" fill="#C9A55C" stroke="none" opacity="0.9" />
+        <g stroke-width="0.6" opacity="0.35">
+          <path d="M74 400l-20 26M226 400l20 26M84 340l-24 12M216 340l24 12" />
+        </g>
+      </g>
+    )
+  }
+
+  {
+    face === 'sun' && (
+      <g stroke="#C9A55C" fill="none">
+        <circle cx="150" cy="200" r="56" fill="#C9A55C" opacity="0.85" stroke="none" />
+        <circle cx="150" cy="200" r="70" stroke-width="0.5" opacity="0.35" />
+        <g stroke-width="1.2" stroke-linecap="round" opacity="0.7">
+          {Array.from({ length: 16 }).map((_, i) => {
+            const a = (i * Math.PI) / 8;
+            const x1 = 150 + Math.cos(a) * 82;
+            const y1 = 200 + Math.sin(a) * 82;
+            const x2 = 150 + Math.cos(a) * (i % 2 === 0 ? 108 : 96);
+            const y2 = 200 + Math.sin(a) * (i % 2 === 0 ? 108 : 96);
+            return <path d={`M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`} />;
+          })}
+        </g>
+        <g stroke-width="0.8" opacity="0.5">
+          <path d="M64 400h172M64 424h172" />
+          <path d="M92 400v24M150 400v24M208 400v24" />
+        </g>
+      </g>
+    )
+  }
+
+  {
+    face === 'wheel' && (
+      <g stroke="#C9A55C" fill="none" transform="translate(150 250)">
+        <circle r="96" stroke-width="1" opacity="0.7" />
+        <circle r="72" stroke-width="0.5" opacity="0.4" />
+        <circle r="34" stroke-width="0.8" opacity="0.6" />
+        <circle r="7" fill="#C9A55C" stroke="none" opacity="0.9" />
+        <g stroke-width="0.9" opacity="0.55">
+          {Array.from({ length: 8 }).map((_, i) => {
+            const a = (i * Math.PI) / 4;
+            return (
+              <path
+                d={`M${(Math.cos(a) * 34).toFixed(1)} ${(Math.sin(a) * 34).toFixed(1)}L${(Math.cos(a) * 96).toFixed(1)} ${(Math.sin(a) * 96).toFixed(1)}`}
+              />
+            );
+          })}
+        </g>
+        <g opacity="0.65">
+          {Array.from({ length: 4 }).map((_, i) => {
+            const a = (i * Math.PI) / 2 + Math.PI / 4;
+            return <circle cx={(Math.cos(a) * 118).toFixed(1)} cy={(Math.sin(a) * 118).toFixed(1)} r="9" stroke-width="0.7" />;
+          })}
+        </g>
+      </g>
+    )
+  }
+
+  {
+    face === 'world' && (
+      <g stroke="#C9A55C" fill="none" transform="translate(150 250)">
+        <ellipse rx="74" ry="110" stroke-width="1.2" opacity="0.75" />
+        <ellipse rx="62" ry="96" stroke-width="0.4" opacity="0.3" />
+        <circle r="26" stroke-width="0.8" opacity="0.55" />
+        <path d="M0 -26v52M-26 0h52" stroke-width="0.6" opacity="0.4" />
+        <g opacity="0.7">
+          {[
+            [0, -140],
+            [0, 140],
+            [-92, 0],
+            [92, 0],
+          ].map(([cx, cy]) => (
+            <path
+              transform={`translate(${cx} ${cy}) scale(0.5)`}
+              d="M0 -24L1.4 -9.2L8.5 -20.5L2.8 -13.4L12 -12L2.8 -10.6L8.5 -3.5L1.4 -9.2L0 0L-1.4 -9.2L-8.5 -3.5L-2.8 -10.6L-12 -12L-2.8 -13.4L-8.5 -20.5L-1.4 -9.2L0 -24Z"
+              fill="#C9A55C"
+              stroke="none"
+            />
+          ))}
+        </g>
+      </g>
+    )
+  }
+
+  {
+    face === 'blank' && (
+      <g transform={`translate(${W / 2} ${H / 2})`} opacity="0.28">
+        <path d="M-52 0h104" stroke="#9A7D42" stroke-width="0.6" />
+        <path d="M0 -52v104" stroke="#9A7D42" stroke-width="0.6" stroke-dasharray="3 6" />
+        <circle r="52" fill="none" stroke="#9A7D42" stroke-width="0.5" stroke-dasharray="2 8" />
+      </g>
+    )
+  }
+
+  <!-- Title plate -->
+  {
+    title && (
+      <g>
+        <path d={`M78 ${H - 54}h144`} stroke="#9A7D42" stroke-width="0.5" opacity="0.5" />
+        <text
+          x={W / 2}
+          y={H - 32}
+          text-anchor="middle"
+          fill="#C9A55C"
+          opacity="0.85"
+          font-family="Cormorant Garamond Variable, Georgia, serif"
+          font-size="21"
+          letter-spacing="1.5"
+        >
+          {title}
+        </text>
+      </g>
+    )
+  }
+</svg>
+
+<style>
+  .tarot-card {
+    display: block;
+    border-radius: 14px;
+    filter: drop-shadow(0 18px 34px oklch(0 0 0 / 0.55));
+  }
+</style>

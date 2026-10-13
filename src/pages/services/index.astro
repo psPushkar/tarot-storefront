@@ -1,0 +1,229 @@
+---
+import PageHeader from '../../components/PageHeader.astro';
+import Ornament from '../../components/Ornament.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
+import StateBlock from '../../components/StateBlock.astro';
+import Base from '../../layouts/Base.astro';
+import { getBrand } from '../../lib/brand';
+import { getCatalogue, groupByType, sortForDisplay } from '../../lib/catalogue';
+import { servicesIntro } from '../../lib/content';
+import { formatDate, serviceTypeLabel } from '../../lib/format';
+import { isNotReady } from '../../lib/result';
+import { breadcrumbSchema, itemListSchema } from '../../lib/schema';
+
+const { profile, onVacation } = await getBrand();
+const catalogue = await getCatalogue();
+
+const services = sortForDisplay(catalogue.services);
+const groups = groupByType(services);
+const showFilters = services.length > 5 && groups.length > 1;
+
+const returnDate = profile.vacation?.until
+  ? formatDate(`${profile.vacation.until}T12:00:00Z`, profile.timezone)
+  : '';
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Readings', path: '/services' },
+];
+
+const reassurances = [
+  {
+    title: 'Held in confidence',
+    body: 'Nothing said in a reading is repeated, quoted or used elsewhere. Notes are kept privately, and only so that I can read for you properly the next time.',
+  },
+  {
+    title: 'Paid through Stripe',
+    body: 'Card details are handled entirely by Stripe and never touch this website. You will see the exact total before anything is charged.',
+  },
+  {
+    title: 'Moved or cancelled freely',
+    body: 'Plans change. You can reschedule or cancel up to 24 hours before the appointed time, without explanation and without a fee.',
+  },
+];
+---
+
+<Base
+  title="Readings"
+  description="Six ways to sit with a question: live readings by video or telephone, a written reading delivered as a letter, and a short recorded reading. Each described in full, with its length and price."
+  schemas={[breadcrumbSchema(trail), services.length > 0 ? itemListSchema(services) : null]}
+>
+  <PageHeader
+    eyebrow={servicesIntro.eyebrow}
+    heading={servicesIntro.heading}
+    lede={servicesIntro.body}
+    variant="ceremonial"
+  />
+
+  {
+    onVacation ? (
+      <StateBlock
+        heading="Away for a time."
+        body={
+          profile.vacation?.message ||
+          `I am taking a short pause from readings${returnDate ? ` and will return on ${returnDate}` : ''}. Existing bookings are unaffected.`
+        }
+        note="If you would like to be told when new times open, write to me and I will keep your name."
+        actions={[
+          { label: 'Write to me', href: '/contact', variant: 'primary' },
+          { label: 'Read the journal', href: '/journal' },
+        ]}
+      />
+    ) : !catalogue.ok && catalogue.error && isNotReady(catalogue.error) ? (
+      <StateBlock
+        heading="The offerings are not listed yet."
+        body="This site is not yet connected to its booking service, so there is nothing to show here. Everything else works normally."
+        actions={[
+          { label: 'About the practice', href: '/about' },
+          { label: 'Get in touch', href: '/contact' },
+        ]}
+      />
+    ) : !catalogue.ok ? (
+      <StateBlock
+        heading="Something didn't come through."
+        body="The list of readings couldn't be loaded at the moment. This is most likely a brief interruption — please try again in a moment."
+        actions={[
+          { label: 'Try again', href: '/services', variant: 'primary' },
+          { label: 'Return home', href: '/' },
+        ]}
+      />
+    ) : services.length === 0 ? (
+      <StateBlock
+        heading="The offerings are being prepared."
+        body="New sessions will be listed here soon. In the meantime, you're welcome to learn more about the practice or reach out directly."
+        actions={[
+          { label: 'About the practice', href: '/about' },
+          { label: 'Get in touch', href: '/contact' },
+        ]}
+      />
+    ) : (
+      <>
+        <section class="section-sm" aria-label="All readings">
+          <div class="shell shell-wide">
+            {showFilters && (
+              <div class="filters" role="group" aria-label="Filter readings by format">
+                <button type="button" class="chip" aria-pressed="true" data-filter="all">
+                  Everything
+                </button>
+                {groups.map((group) => (
+                  <button type="button" class="chip" aria-pressed="false" data-filter={group.type}>
+                    {serviceTypeLabel(group.type)}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div class="grid-catalogue" data-reveal-group>
+              {services.map((service, index) => (
+                <div data-service-type={service.type} class="cell">
+                  <ServiceCard service={service} featured={index === 0} />
+                </div>
+              ))}
+            </div>
+
+            <p class="filter-empty" data-filter-empty hidden>
+              Nothing in that format at the moment. Choose another, or view everything.
+            </p>
+          </div>
+        </section>
+
+        <section class="section-sm" aria-label="How booking works">
+          <div class="shell">
+            <Ornament motif="divider" class="reassure__rule" />
+            <ul class="reassure" data-reveal-group>
+              {reassurances.map((item) => (
+                <li data-reveal>
+                  <Ornament motif="star" size={13} class="reassure__star" />
+                  <h2>{item.title}</h2>
+                  <p>{item.body}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      </>
+    )
+  }
+</Base>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-block-end: 40px;
+  }
+
+  .cell {
+    display: flex;
+  }
+  .cell[hidden] {
+    display: none;
+  }
+  .cell > :global(article) {
+    inline-size: 100%;
+  }
+
+  .filter-empty {
+    padding-block: 48px;
+    text-align: center;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-muted);
+  }
+
+  .reassure__rule {
+    display: block;
+    color: var(--color-gold-dim);
+    margin-block-end: clamp(40px, 5vw, 64px);
+  }
+  .reassure {
+    display: grid;
+    gap: clamp(28px, 4vw, 48px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (min-width: 768px) {
+    .reassure {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .reassure__star {
+    color: var(--color-gold-dim);
+  }
+  .reassure h2 {
+    margin-block: 14px 8px;
+    font-size: var(--text-display-sm);
+    color: var(--color-ink);
+  }
+  .reassure p {
+    max-inline-size: 42ch;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+  }
+</style>
+
+<script>
+  // Format filter. Progressive enhancement only — without JS every card shows.
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
+  const cells = document.querySelectorAll<HTMLElement>('[data-service-type]');
+  const empty = document.querySelector<HTMLElement>('[data-filter-empty]');
+
+  if (buttons.length > 0 && cells.length > 0) {
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const wanted = button.dataset.filter;
+        buttons.forEach((other) => other.setAttribute('aria-pressed', String(other === button)));
+
+        let visible = 0;
+        cells.forEach((cell) => {
+          const matches = wanted === 'all' || cell.dataset.serviceType === wanted;
+          cell.hidden = !matches;
+          if (matches) visible++;
+        });
+
+        if (empty) empty.hidden = visible > 0;
+      });
+    });
+  }
+</script>

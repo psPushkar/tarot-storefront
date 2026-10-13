@@ -1,0 +1,141 @@
+---
+/**
+ * Focus — the layout for the booking flow.
+ *
+ * Deliberately stripped: no site navigation, no footer links, no ambient glow.
+ * The only way out is back to the reading you came from, which is the point —
+ * every other affordance on the page is a chance to abandon a checkout.
+ */
+
+import '../styles/global.css';
+
+import Ornament from '../components/Ornament.astro';
+import Seo from '../components/Seo.astro';
+import { getBrand } from '../lib/brand';
+
+interface Props {
+  title: string;
+  description: string;
+  backHref: string;
+  backLabel: string;
+  noindex?: boolean;
+}
+
+const { title, description, backHref, backLabel, noindex = true } = Astro.props;
+const { profile } = await getBrand();
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+---
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0C0B0F" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <Seo
+      title={title}
+      description={description}
+      path={path}
+      siteName={profile.site_name}
+      noindex={noindex}
+    />
+
+    <script is:inline>
+      document.documentElement.classList.remove('no-js');
+    </script>
+  </head>
+
+  <body>
+    <header class="focus-bar">
+      <div class="shell focus-bar__inner">
+        <a href="/" class="focus-bar__brand" aria-label={`${profile.site_name} — home`}>
+          <Ornament motif="star" size={14} class="text-gold" />
+          <span>{profile.site_name}</span>
+        </a>
+
+        <a href={backHref} class="focus-bar__back">
+          <Ornament motif="arrow" size={14} class="focus-bar__arrow" />
+          <span>{backLabel}</span>
+        </a>
+      </div>
+    </header>
+
+    <main id="main" class="focus-main">
+      <slot />
+    </main>
+
+    <footer class="focus-foot">
+      <div class="shell focus-foot__inner">
+        <p>Payment is handled by Stripe. Card details never touch this website.</p>
+        <a href="/legal">Terms and policies</a>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .focus-bar {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 40;
+    background: color-mix(in oklch, var(--color-canvas) 88%, transparent);
+    backdrop-filter: blur(12px);
+    border-block-end: 1px solid var(--color-line);
+  }
+  .focus-bar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    block-size: 64px;
+  }
+  .focus-bar__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-family: var(--font-display);
+    font-size: var(--text-display-sm);
+    font-weight: 300;
+    color: var(--color-ink);
+  }
+  .focus-bar__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--text-copy-sm);
+    color: var(--color-ink-soft);
+    transition: color 150ms var(--ease-subtle);
+  }
+  .focus-bar__back:hover {
+    color: var(--color-gold);
+  }
+  .focus-bar__arrow {
+    transform: rotate(180deg);
+  }
+
+  .focus-main {
+    min-block-size: 70vh;
+    padding-block: clamp(36px, 6vw, 72px);
+  }
+
+  .focus-foot {
+    padding-block: 28px;
+    border-block-start: 1px solid var(--color-line);
+    background: var(--color-recessed);
+  }
+  .focus-foot__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: var(--text-fine);
+    color: var(--color-ink-muted);
+  }
+  .focus-foot__inner a:hover {
+    color: var(--color-gold);
+  }
+</style>

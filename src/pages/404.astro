@@ -1,0 +1,84 @@
+---
+import Base from '../layouts/Base.astro';
+import StateBlock from '../components/StateBlock.astro';
+import Ornament from '../components/Ornament.astro';
+import TarotCard from '../components/TarotCard.astro';
+---
+
+<Base
+  title="Page not found"
+  description="The page you were looking for does not exist. It may have been moved or the address may be mistyped."
+  noindex={true}
+  schemas={[]}
+>
+  <section class="not-found" aria-label="Page not found">
+    <div class="not-found__flourish-tl" aria-hidden="true">
+      <Ornament motif="flourish" size={48} />
+    </div>
+    <div class="not-found__flourish-br" aria-hidden="true">
+      <Ornament motif="flourish" size={48} />
+    </div>
+
+    <div class="not-found__card" aria-hidden="true">
+      <TarotCard face="blank" width={172} />
+    </div>
+
+    <StateBlock
+      tone="ceremonial"
+      headingLevel="h1"
+      pattern={true}
+      heading="The card you've drawn is blank."
+      body="This page doesn't exist — it may have been moved, or the address may be mistyped. Let's find you a better path."
+      actions={[
+        { label: 'Return home', href: '/', variant: 'primary' },
+        { label: 'View readings', href: '/services' },
+      ]}
+    />
+  </section>
+</Base>
+
+<style>
+  .not-found {
+    position: relative;
+    min-height: 80vh;
+    display: grid;
+    place-items: center;
+  }
+  .not-found__card {
+    position: relative;
+    z-index: 1;
+    margin-block: clamp(80px, 12vh, 130px) -18px;
+    transform: rotate(-4deg);
+    animation: card-settle 900ms var(--ease-smooth) both;
+  }
+  @keyframes card-settle {
+    from {
+      opacity: 0;
+      transform: rotate(-9deg) translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: rotate(-4deg) translateY(0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .not-found__card {
+      animation: none;
+    }
+  }
+  .not-found__flourish-tl {
+    position: absolute;
+    inset-block-start: clamp(80px, 10vh, 140px);
+    inset-inline-start: clamp(24px, 5vw, 80px);
+    color: var(--color-gold-dim);
+    opacity: 0.25;
+  }
+  .not-found__flourish-br {
+    position: absolute;
+    inset-block-end: clamp(80px, 10vh, 140px);
+    inset-inline-end: clamp(24px, 5vw, 80px);
+    color: var(--color-gold-dim);
+    opacity: 0.25;
+    transform: rotate(180deg);
+  }
+</style>
